@@ -7,16 +7,17 @@ const {
   readProjectColorTokens,
 } = require('@figma-harness/harness/color/core/token-source.ts') as
   typeof import('@figma-harness/harness/color/core/token-source.ts');
+const { designSystem } = require('../src/system.ts') as typeof import('../src/system.ts');
 
 test('Primer\'s colours keep their values and their recorded ownership', () => {
-  const tokens = readProjectColorTokens();
+  const tokens = readProjectColorTokens(designSystem.audit);
   assert.equal(Object.keys(tokens).length, 170);
   assert.equal(tokens['fgColor/accent'], '#0969DA');
   assert.equal(tokens['button/primary/bgColor/rest'], '#1F883D');
   assert.equal(tokens['borderColor/muted'], '#D1D9E0B3');
   assert.equal(tokens['focus/outline-color'], tokens['fgColor/accent']);
 
-  const report = analyzeProjectColorOwnership();
+  const report = analyzeProjectColorOwnership(designSystem.audit);
   assert.deepEqual(report.issues, []);
   const bySource = new Map(report.groups.map((group) => [group.source, group]));
   assert.deepEqual(

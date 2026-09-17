@@ -13,10 +13,10 @@
 | `src/foundations/dimensions.ts` | Sizes, spacing, radii, shell | F2, F4 |
 | `src/foundations/elevation.ts`, `motion.ts`, `focus.ts` | Shadows, motion, focus outlines | F3, F5, F7 |
 | `src/foundations/audit.ts` | The audit policy, waivers and reviewed exceptions | F7 |
-| `src/primitives/`, `src/components/`, `src/patterns/` | Text, icons, charts; components; app header, PageLayout, PageHeader, DataTable | C1–C8 |
+| `src/primitives/`, `src/components/`, `src/patterns/` | Text, icons, charts; components; app header, PageLayout, PageHeader, DataTable, and `starter`, the vocabulary the app template is written in | C1–C8 |
 | `src/sheets/` | The Design system page and its page chrome | all |
 | `src/index.ts` | The authoring vocabulary apps import | — |
-| `src/system.ts` | `PRIMER`, the definition the plugin composes | — |
+| `src/system.ts` | `designSystem`, the definition the plugin builds | — |
 | `design-system.json` | What the harness needs without importing code: fonts and the generated colour-vision table | — |
 | `docs/adr/` | [Primer's decisions](docs/adr/README.md) | — |
 
@@ -52,10 +52,9 @@ The `app/*` sizes are the only ones this package adds: Primer's PageLayout sets 
 2. Regenerate, rebuild, and refresh the colour-vision table:
 
    ```bash
-   pnpm tokens:generate
-   pnpm icons:generate
+   pnpm generate
    pnpm build
-   pnpm cvd:generate
+   pnpm cvd:generate design-systems/primer
    pnpm build
    ```
 
@@ -84,4 +83,4 @@ pnpm render:png renders/preview 0.5
 
 ## Licences
 
-Primer Primitives and Octicons are © GitHub Inc. under the MIT license, reproduced in [`NOTICE.md`](NOTICE.md). Relay, the example app, is fictional and uses no GitHub logo, product name or brand typeface.
+Primer Primitives and Octicons are © GitHub Inc. under the MIT license, reproduced in [`NOTICE.md`](NOTICE.md). Relay, the example app built with it, is fictional and uses no GitHub logo, product name or brand typeface.

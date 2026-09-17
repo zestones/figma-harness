@@ -12,13 +12,18 @@ export interface StressRuntime {
   readonly CONTRACT: HarnessContract;
 }
 
-/** Exercise every declared size-sensitive capability and data extreme. */
-export async function stress(runtime: StressRuntime): Promise<number> {
+/** What is wrong with a built result, if anything. */
+export type StressInspector = (result: unknown) => readonly string[];
+
+/** Exercise every declared size-sensitive capability and data extreme. Each
+ *  result must build, and pass `inspect` when one is given. */
+export async function stress(runtime: StressRuntime, inspect?: StressInspector): Promise<number> {
   const contract = runtime.CONTRACT.document.stress;
   const failures: string[] = [];
   const attempt = async (label: string, action: () => BuildResult): Promise<void> => {
     try {
       const result = await action();
+      for (const issue of inspect ? inspect(result) : []) failures.push(label + ' -> ' + issue);
       if (result && typeof result === 'object' && 'remove' in result
         && typeof (result as { remove?: unknown }).remove === 'function') {
         (result as { remove(): void }).remove();
@@ -67,7 +72,7 @@ export async function stress(runtime: StressRuntime): Promise<number> {
   ) + contract.frameSizes.length * contract.screens.length + mutationCases;
   console.log('\n--- stress ---');
   if (!failures.length) {
-    console.log('  ' + cases + ' size combinations, every one built');
+    console.log('  ' + cases + ' size combinations, every one built' + (inspect ? ' and laid out cleanly' : ''));
   } else {
     console.log('  ' + failures.length + ' FAILED of ' + cases + ':');
     const seen = new Set<string>();

@@ -45,12 +45,15 @@
     "design-systems/*/tests/**/*.ts",
     "apps/*/src/**/*.ts",
     "apps/*/tests/**/*.ts",
+    "templates/*/src/**/*.ts",
+    "templates/*/tests/**/*.ts",
+    "plugin/types/**/*.d.ts",
     "plugin/src/**/*.ts",
     "plugin/tests/**/*.ts"
   ],
   "exclude": [
     "**/node_modules",
-    "design-systems/primer/src/foundations/cvd.generated.ts",
-    "design-systems/primer/src/primitives/icons.generated.ts"
+    "design-systems/*/src/**/*.generated.ts",
+    "templates/*/src/**/*.generated.ts"
   ]
 }

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createMockNodeFactory } from '../src/runtime/figma-mock/node-factory.ts';
 import { createFigmaMock } from '../src/runtime/figma-mock.ts';
+import { hugSize } from '../src/runtime/layout.ts';
 import {
   canonical,
   snapshotComponentNode,
@@ -95,4 +96,49 @@ test('shared accessors preserve independent values, layout validation and text r
   const streamedValue: string[] = [];
   writeCanonicalJson(value, chunk => streamedValue.push(chunk));
   assert.equal(streamedValue.join(''), JSON.stringify(canonical(value, new Set<object>())));
+});
+
+test('a wrapping row grows to hold every line, as Figma does', () => {
+  const factory = createMockNodeFactory();
+  const row = factory.node('FRAME');
+  row.layoutMode = 'HORIZONTAL';
+  row.layoutWrap = 'WRAP';
+  row.itemSpacing = 10;
+  row.counterAxisSpacing = 8;
+  row.resize(100, 0);
+  row.counterAxisSizingMode = 'AUTO';
+  for (let index = 0; index < 3; index++) {
+    const chip = factory.node('FRAME');
+    chip.resize(40, 20);
+    row.appendChild(chip);
+  }
+  // Two chips fit on the first line, the third starts a second one.
+  assert.equal(row.width, 100);
+  assert.equal(row.height, 20 + 8 + 20);
+});
+
+test('an auto-layout frame with nothing in its flow keeps its size, as Figma does', () => {
+  const factory = createMockNodeFactory();
+  const row = factory.node('FRAME');
+  row.layoutMode = 'HORIZONTAL';
+  row.resize(32, 100);
+  row.counterAxisSizingMode = 'AUTO';
+  hugSize(row);
+  assert.equal(row.height, 100);
+  const label = factory.node('TEXT');
+  row.appendChild(label);
+  assert.equal(row.height, label.height);
+});
+
+test('the orphan audit reports an empty node that was never appended', async () => {
+  const factory = createMockNodeFactory();
+  const page = factory.node('PAGE', 'page');
+  const kept = factory.node('FRAME', 'kept');
+  page.appendChild(kept);
+  factory.node('FRAME', 'card-actions');
+  const original = console.log;
+  try {
+    console.log = () => undefined;
+    assert.equal(await orphanRule.run({ created: factory.created } as AuditContext), 1);
+  } finally { console.log = original; }
 });

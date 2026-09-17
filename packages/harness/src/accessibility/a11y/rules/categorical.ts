@@ -6,7 +6,11 @@ import {
 } from '../../../color/core/color.ts';
 import type { ColorOwnershipReport } from '../../../color/core/token-source.ts';
 import { loadContract } from '../../../bundle/contract-loader.ts';
-import { designSystemLayout, repositoryRoot } from '../../../core/workspace.ts';
+import {
+  designSystemLayoutOf,
+  repositoryRoot,
+  type WorkspacePackage,
+} from '../../../core/workspace.ts';
 import type { DesignSystemContract } from '@figma-harness/contract';
 import type { AddFinding } from '../tree/types.ts';
 import type { ColorLookup } from './surface-contrast.ts';
@@ -99,14 +103,16 @@ export function auditCategoricalSeparation(
   });
 }
 
+/** Compare the design system's generated colour-vision table with the tokens. */
 export async function auditGeneratedCvd(
   colors: Readonly<Record<string, import('../../../color/core/color.ts').Color>>,
   add: AddFinding,
   contract: Pick<DesignSystemContract, 'cvd' | 'pageGround'>,
+  designSystem: WorkspacePackage,
 ): Promise<void> {
   try {
     const fresh = await table(colors, contract);
-    const generatedPath = designSystemLayout().cvdTable;
+    const generatedPath = designSystemLayoutOf(designSystem).cvdTable;
     const shown = path.relative(repositoryRoot(), generatedPath);
     const onDisk = fs.readFileSync(generatedPath, 'utf8') as string;
     const match = onDisk.match(/export const CVD = ([\s\S]*?);\n/);
@@ -128,7 +134,7 @@ export async function auditGeneratedCvd(
         'FAIL',
         'generated',
         shown + ' is stale',
-        `${drift.length} value(s) drifted — run pnpm cvd:generate. ${drift[0]}`,
+        `${drift.length} value(s) drifted — run pnpm cvd:generate ${designSystem.relative}. ${drift[0]}`,
       );
     } else {
       add(

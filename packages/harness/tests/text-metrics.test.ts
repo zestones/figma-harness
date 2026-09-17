@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { defaultFamily } from '../src/core/bundled-fonts.ts';
+import { defaultFamily, useDesignSystemFonts } from '../src/core/bundled-fonts.ts';
+import { templatePackage } from '../src/core/workspace.ts';
 import type { MockTextStyle } from '../src/runtime/figma-mock/types.ts';
 import { layoutText, measure, wrapLines } from '../src/runtime/text-metrics.ts';
+
+// The design system template's fonts, whichever app is active.
+useDesignSystemFonts(templatePackage('design-system').dir);
 
 const BODY: MockTextStyle = {
   id: 'S1',

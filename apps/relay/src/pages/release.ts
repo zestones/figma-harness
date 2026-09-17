@@ -183,10 +183,16 @@ export const screenRelease = async function (options: ReleaseOptions): Promise<F
 
   const history = await createFrame({ name: 'history', dir: 'V', w: width, gap: dim('base/size/8') });
   history.appendChild(await createText({ style: 'title/small', text: 'Activity' }));
-  history.appendChild(await timeline({
-    w: width,
-    items: detail.timeline.map((event) => ({ icon: activityIcon(event), body: activityBody(data, event) })),
-  }));
+  if (detail.timeline.length) {
+    history.appendChild(await timeline({
+      w: width,
+      items: detail.timeline.map((event) => ({ icon: activityIcon(event), body: activityBody(data, event) })),
+    }));
+  } else {
+    history.appendChild(await createText({
+      style: 'body/medium', color: 'fgColor/muted', w: width, text: 'Nothing has happened to this release yet.',
+    }));
+  }
   content.appendChild(history);
 
   if (layout.pane) await sidePane(data, layout.pane, layout.paneWidth);

@@ -12,7 +12,8 @@
 | `src/stress-cases.ts` | Sizes and data extremes the harness builds | yes |
 | `src/lab/` | Design lab experiments under review | exploration only |
 | `src/signatures.ts` | Representative components the baseline protects | no |
-| `src/index.ts` | `RELAY_APP`, the definition the plugin composes | no |
-| `tests/` | The flow matrix and its motion | yes |
+| `src/index.ts` | `app`, the definition the plugin builds | no |
+| `tests/` | The flow matrix and its motion, and the shared shell sizes | yes |
+| `baselines/` | The approved design and component signatures, once reviewed in Figma | `BASELINE_ACCEPTANCE` only |
 
 Pages import visuals only from `@figma-harness/primer` and data only from `src/fixtures/index.ts`. When the vocabulary is missing something, the page change stops and a `DESIGN_SYSTEM_CHANGE` starts (see [`AGENTS.md`](../../AGENTS.md)).

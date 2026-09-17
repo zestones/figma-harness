@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { getHeapStatistics } from 'node:v8';
+import { packageManager as startingPackageManager, packageManagerCommand } from '../core/package-manager.ts';
 import { repositoryRoot } from '../core/workspace.ts';
 
 const ROOT = repositoryRoot();
@@ -12,11 +13,21 @@ const DEFAULT_HEAP_MB = 512;
 const A11Y_HEAP_MB = 640;
 const TASKS = new Set([
   'preflight', 'test', 'guard', 'guard:scope', 'lint', 'typecheck', 'build', 'build:check', 'diagnose:memory',
-  'tokens:check', 'icons:check',
+  'check:generated', 'cvd:generate', 'each', 'use',
   'audit', 'audit:contrast', 'audit:a11y', 'audit:theme',
   'design:signature', 'design:check', 'design:components', 'design:components:check',
   'render:svg', 'render:png', 'render:fonts:check',
 ]);
+
+/* `each` runs a task once per app, so it gets more time. */
+const runtimeFor = function (task: string): number {
+  return task === 'each' ? 900 : 180;
+};
+
+/* The rendered-tree accessibility audit holds the most nodes at once. */
+const heapFor = function (task: string, args: readonly string[]): number {
+  return task === 'audit:a11y' || (task === 'each' && args[0] === 'audit:a11y') ? A11Y_HEAP_MB : DEFAULT_HEAP_MB;
+};
 
 function checkedCgroup(): string {
   const entry = readFileSync('/proc/self/cgroup', 'utf8').trim().split('\n')
@@ -37,13 +48,6 @@ function checkedCgroup(): string {
   return directory;
 }
 
-/* pnpm may be a JavaScript entry point or a native executable. */
-function packageManagerCommand(packageManager: string, args: string[]): [string, string[]] {
-  return /\.[cm]?js$/.test(packageManager)
-    ? [process.execPath, [packageManager, ...args]]
-    : [packageManager, args];
-}
-
 function worker(packageManager: string, task: string, args: string[]): void {
   const directory = checkedCgroup();
   const reportPeak = () => {
@@ -52,7 +56,7 @@ function worker(packageManager: string, task: string, args: string[]): void {
       + '; events: ' + readFileSync(path.join(directory, 'pids.events'), 'utf8').trim());
   };
   if (task === 'preflight') { reportPeak(); return; }
-  const heapMb = task === 'audit:a11y' ? A11Y_HEAP_MB : DEFAULT_HEAP_MB;
+  const heapMb = heapFor(task, args);
   let executable: string;
   let command: string[];
   if (task === 'test') {
@@ -85,20 +89,25 @@ function main(): void {
   if (process.platform !== 'linux' || !TASKS.has(task)) {
     throw new Error('Usage on Linux: pnpm isolated <preflight|test|audit|guard|...> [arguments]. No raw verify task.');
   }
-  const packageManager = process.env['npm_execpath'];
-  if (!packageManager || !existsSync(packageManager)) throw new Error('Start this runner through pnpm isolated');
+  const packageManager = startingPackageManager();
   const unit = 'figma-harness-check-' + process.pid + '-' + Date.now() + '.service';
-  const heapMb = task === 'audit:a11y' ? A11Y_HEAP_MB : DEFAULT_HEAP_MB;
+  const heapMb = heapFor(task, args);
+  // The service starts with the user manager's environment, so the variables
+  // that select an app or preview colours are passed on explicitly.
+  const selection = Object.entries(process.env)
+    .filter(([name, value]) => name.startsWith('FIGMA_HARNESS_') && value !== undefined)
+    .map(([name, value]) => '--setenv=' + name + '=' + value);
   const launch = spawnSync('systemd-run', [
     '--user', '--wait', '--pipe',
     '--unit=' + unit, '--slice=app.slice', '--working-directory=' + ROOT,
     '--property=MemoryAccounting=yes', '--property=MemoryHigh=768M', '--property=MemoryMax=1G',
     '--property=MemorySwapMax=0', '--property=OOMPolicy=kill', '--property=TasksMax=64',
-    '--property=CPUQuota=100%', '--property=RuntimeMaxSec=180', '--property=TimeoutStopSec=5',
+    '--property=CPUQuota=100%', '--property=RuntimeMaxSec=' + runtimeFor(task), '--property=TimeoutStopSec=5',
     '--property=LimitCORE=0',
     `--setenv=NODE_OPTIONS=--max-old-space-size=${heapMb} --v8-pool-size=1`,
     '--setenv=UV_THREADPOOL_SIZE=2', '--setenv=GOMAXPROCS=1', '--setenv=RAYON_NUM_THREADS=1',
     '--setenv=PATH=' + path.dirname(process.execPath) + ':' + (process.env['PATH'] || '/usr/bin:/bin'),
+    ...selection,
     '--', process.execPath, `--max-old-space-size=${heapMb}`, '--import', 'tsx', __filename,
     '--worker', packageManager, task, ...args,
   ], { cwd: ROOT, stdio: 'inherit' });

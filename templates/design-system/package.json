@@ -1,0 +1,23 @@
+{
+  "name": "@figma-harness/template-design-system",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The design system template new design systems are created from",
+  "type": "module",
+  "figmaHarness": {
+    "role": "design-system",
+    "template": true
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./system": "./src/system.ts"
+  },
+  "dependencies": {
+    "@figma-harness/contract": "workspace:*",
+    "@figma-harness/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@figma-harness/harness": "workspace:*",
+    "@fontsource/noto-sans": "5.3.0"
+  }
+}

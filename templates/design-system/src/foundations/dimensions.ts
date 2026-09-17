@@ -1,0 +1,48 @@
+/* Sizes, installed as Figma variables and bound by the layers that use them.
+ * Gaps and paddings stay on the spacing scale; the audits reject any other value. */
+
+import { dimensionReference, type DimensionReference } from '@figma-harness/engine';
+
+type VariableScope = 'CORNER_RADIUS' | 'GAP' | 'WIDTH_HEIGHT';
+
+const size = function (name: string, value: number, scopes: readonly VariableScope[], description: string) {
+  return Object.freeze({ name, value, scopes: Object.freeze([...scopes]), description });
+};
+
+export const DIMS = Object.freeze([
+  size('space/2', 2, ['GAP'], 'Hairline gaps.'),
+  size('space/4', 4, ['GAP'], 'Between a label and its detail.'),
+  size('space/8', 8, ['GAP'], 'Between related controls.'),
+  size('space/12', 12, ['GAP'], 'Inside compact groups.'),
+  size('space/16', 16, ['GAP'], 'Row and card padding.'),
+  size('space/24', 24, ['GAP'], 'Between blocks of a screen.'),
+  size('space/32', 32, ['GAP'], 'Screen padding.'),
+  size('space/48', 48, ['GAP'], 'Between sections of a sheet.'),
+  size('radius/small', 4, ['CORNER_RADIUS'], 'Small marks.'),
+  size('radius/medium', 8, ['CORNER_RADIUS'], 'Controls and cards.'),
+  size('radius/full', 9999, ['CORNER_RADIUS'], 'Pills.'),
+  size('control/height', 36, ['WIDTH_HEIGHT'], 'Buttons.'),
+  size('header/height', 56, ['WIDTH_HEIGHT'], 'The screen header.'),
+  size('content/max-width', 960, ['WIDTH_HEIGHT'], 'The widest a screen\'s content grows.'),
+] as const);
+
+export type DimensionName = typeof DIMS[number]['name'];
+
+/** The spacing scale, zero included. */
+export const SPACING: readonly number[] = Object.freeze([0, ...DIMS.filter((token) => token.name.startsWith('space/')).map((token) => token.value)]);
+
+export const RADII = Object.freeze({ small: 4, medium: 8, full: 9999 });
+
+const references = new Map<string, DimensionReference>();
+
+/** A bound size: f({ pad: dim('space/16') }). Arithmetic uses .value. */
+export function dim(name: DimensionName): DimensionReference {
+  let reference = references.get(name);
+  if (!reference) {
+    const token = DIMS.find((entry) => entry.name === name);
+    if (!token) throw new Error('unknown size ' + name);
+    reference = dimensionReference(token.name, token.value, token.scopes);
+    references.set(name, reference);
+  }
+  return reference;
+}

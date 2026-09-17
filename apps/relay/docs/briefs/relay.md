@@ -43,6 +43,6 @@ All of it comes from `@figma-harness/primer`.
 
 ## Acceptance evidence
 
-- Focused tests: `apps/relay/tests/flows.test.ts`, and the plugin's `plugin-workflow` and `document` tests.
+- Focused tests: `apps/relay/tests/flows.test.ts` and `apps/relay/tests/shells.test.ts`.
 - Stress cases: app header, release list, data table, page header, banner and dialog across their widths; five screens at five artboard sizes; long names, no releases, no activity, no checks and no approvers.
-- Audits and signatures: `pnpm verify`. The design and component signatures are recorded in `plugin/baselines/` once a maintainer has reviewed the output in Figma.
+- Audits and signatures: `pnpm verify`. The design and component signatures are recorded in `apps/relay/baselines/` once a maintainer has reviewed the output in Figma.

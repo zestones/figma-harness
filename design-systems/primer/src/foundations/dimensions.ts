@@ -1,7 +1,7 @@
 /* Size tokens: Primer's functional sizes, plus the few shell roles Primer
  * leaves to the product. Values are installed as Figma variables and bound
  * natively. Decision: docs/adr/0003-dimension-variables-and-native-bindings.md */
-import type { DimensionField, DimensionReference } from '@figma-harness/engine';
+import { dimensionReference, type DimensionReference } from '@figma-harness/engine';
 import { PRIMER_SIZES } from './primer.generated.ts';
 
 type VariableScopeName = 'CORNER_RADIUS' | 'GAP' | 'WIDTH_HEIGHT';
@@ -89,10 +89,6 @@ export const SHELL_DIMENSIONS = Object.freeze({
   columnGap: sizeToken('stack/gap/spacious'),
 });
 
-const SIZE_FIELDS = Object.freeze(['width', 'height'] as const);
-const SPACE_FIELDS = Object.freeze(['itemSpacing', 'counterAxisSpacing',
-  'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'] as const);
-const RADIUS_FIELDS = Object.freeze(['cornerRadius'] as const);
 const references = new Map<DimensionName, DimensionReference>();
 
 /** Use in f({ pad: dim('stack/padding/normal'), gap: dim('stack/gap/condensed') }).
@@ -102,11 +98,7 @@ export function dim(name: DimensionName): DimensionReference {
   if (!token) throw new Error('unknown dimension ' + name);
   let reference = references.get(name);
   if (!reference) {
-    const fields: DimensionField[] = [];
-    if (token.scopes.includes('WIDTH_HEIGHT')) fields.push(...SIZE_FIELDS);
-    if (token.scopes.includes('GAP')) fields.push(...SPACE_FIELDS);
-    if (token.scopes.includes('CORNER_RADIUS')) fields.push(...RADIUS_FIELDS);
-    reference = Object.freeze({ variable: name, value: token.value, fields: Object.freeze(fields) });
+    reference = dimensionReference(name, token.value, token.scopes);
     references.set(name, reference);
   }
   return reference;

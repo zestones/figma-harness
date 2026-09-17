@@ -32,8 +32,8 @@ const AUDIT_RULES: readonly AuditRule[] = Object.freeze([
   tokenScope,
   iconGlyph,
   exportNames,
-  orphans,
   stress,
+  orphans,
   flowContract,
   prototype,
 ]);

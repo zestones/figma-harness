@@ -219,7 +219,8 @@ export const activityBody = function (data: RelayData, event: ActivityEvent) {
     const body = await createFrame({ name: 'activity/' + event.id, dir: 'V', w: width, gap: 0 });
     const line = await createFrame({ name: 'activity/line', dir: 'H', w: width, gap: dim('base/size/8'), align: 'CENTER' });
     line.appendChild(await avatar({ initials: person?.initials || '?', name: person?.name || 'Someone', series: Number(event.actorId.slice(1)) }));
-    const who = await createText({ style: 'body/medium-600', text: person?.name || 'Someone' });
+    // The avatar, two gaps and at least 40 px of text stay beside the name.
+    const who = await createText({ style: 'body/medium-600', text: person?.name || 'Someone', maxW: width - 76 });
     line.appendChild(who);
     line.appendChild(await createText({
       style: 'body/medium', text: event.text, color: 'fgColor/muted',

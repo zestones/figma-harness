@@ -152,6 +152,22 @@ importers:
         specifier: 'catalog:'
         version: 7.0.2
 
+  apps/coffer:
+    dependencies:
+      '@figma-harness/carrara':
+        specifier: workspace:*
+        version: link:../../design-systems/carrara
+      '@figma-harness/contract':
+        specifier: workspace:*
+        version: link:../../packages/contract
+    devDependencies:
+      '@figma-harness/guards':
+        specifier: workspace:*
+        version: link:../../packages/guards
+      '@figma-harness/harness':
+        specifier: workspace:*
+        version: link:../../packages/harness
+
   apps/relay:
     dependencies:
       '@figma-harness/contract':
@@ -170,6 +186,28 @@ importers:
       '@figma-harness/harness':
         specifier: workspace:*
         version: link:../../packages/harness
+
+  design-systems/carrara:
+    dependencies:
+      '@figma-harness/contract':
+        specifier: workspace:*
+        version: link:../../packages/contract
+      '@figma-harness/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
+    devDependencies:
+      '@figma-harness/harness':
+        specifier: workspace:*
+        version: link:../../packages/harness
+      '@fontsource/inter':
+        specifier: 5.3.0
+        version: 5.3.0
+      '@fontsource/jetbrains-mono':
+        specifier: 5.3.0
+        version: 5.3.0
+      heroicons:
+        specifier: 2.2.0
+        version: 2.2.0
 
   design-systems/primer:
     dependencies:
@@ -195,6 +233,12 @@ importers:
       '@primer/primitives':
         specifier: 11.10.0
         version: 11.10.0
+
+  packages/cli:
+    dependencies:
+      '@figma-harness/harness':
+        specifier: workspace:*
+        version: link:../harness
 
   packages/contract: {}
 
@@ -240,16 +284,42 @@ importers:
       '@figma-harness/engine':
         specifier: workspace:*
         version: link:../packages/engine
-      '@figma-harness/primer':
-        specifier: workspace:*
-        version: link:../design-systems/primer
-      '@figma-harness/relay':
-        specifier: workspace:*
-        version: link:../apps/relay
     devDependencies:
       '@figma-harness/harness':
         specifier: workspace:*
         version: link:../packages/harness
+
+  templates/app:
+    dependencies:
+      '@figma-harness/contract':
+        specifier: workspace:*
+        version: link:../../packages/contract
+      '@figma-harness/template-design-system':
+        specifier: workspace:*
+        version: link:../design-system
+    devDependencies:
+      '@figma-harness/guards':
+        specifier: workspace:*
+        version: link:../../packages/guards
+      '@figma-harness/harness':
+        specifier: workspace:*
+        version: link:../../packages/harness
+
+  templates/design-system:
+    dependencies:
+      '@figma-harness/contract':
+        specifier: workspace:*
+        version: link:../../packages/contract
+      '@figma-harness/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
+    devDependencies:
+      '@figma-harness/harness':
+        specifier: workspace:*
+        version: link:../../packages/harness
+      '@fontsource/noto-sans':
+        specifier: 5.3.0
+        version: 5.3.0
 
 packages:
 
@@ -414,6 +484,12 @@ packages:
 
   '@figma/plugin-typings@1.134.0':
     resolution: {integrity: sha512-e0JSSt7lczdi748/NLVEb7rhf/PG1IZyzieMiQ1AsaPN+A+sqvyYlIfxjzodPKrcdc9Pw9ZVjcHsT36oU744IA==}
+
+  '@fontsource/inter@5.3.0':
+    resolution: {integrity: sha512-RofMylZmjlJEfELXeNHFWBRcSs75rGU/6bV2S2jfnvv/3rPXPGe0LgUJTklcHZ9lM4OZmAVFhcJPnACfb91A3g==}
+
+  '@fontsource/jetbrains-mono@5.3.0':
+    resolution: {integrity: sha512-fqDfB5I9f1p1TV486aUgB9t8zP84P0O1FtQR5Ol9vjwPy+S+EIGlVYm1cvj2W5shcZMTg2nZFdVMoH5wFu8a1A==}
 
   '@fontsource/noto-sans-mono@5.3.0':
     resolution: {integrity: sha512-DPZ+/Ng9HP5UKiALCKtoeGfA7zJzEjHFB/18OU/c3+4I9zZ3eMVAuFZb0SqzT89Yj7KNhJFYnYjyDaVKhdRuUg==}
@@ -973,6 +1049,9 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  heroicons@2.2.0:
+    resolution: {integrity: sha512-yOwvztmNiBWqR946t+JdgZmyzEmnRMC2nxvHFC90bF1SUttwB6yJKYeme1JeEcBfobdOs827nCyiWBS2z/brog==}
+
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
@@ -1110,6 +1189,10 @@ snapshots:
     optional: true
 
   '@figma/plugin-typings@1.134.0': {}
+
+  '@fontsource/inter@5.3.0': {}
+
+  '@fontsource/jetbrains-mono@5.3.0': {}
 
   '@fontsource/noto-sans-mono@5.3.0': {}
 
@@ -1440,6 +1523,8 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  heroicons@2.2.0: {}
 
   object-assign@4.1.1: {}
 

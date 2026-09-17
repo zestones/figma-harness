@@ -1,7 +1,5 @@
 /* Generate the pinned Octicons source, or verify that it is current.
- *
- *   pnpm icons:generate
- *   pnpm icons:check */
+ * `pnpm generate` and `pnpm check:generated` run it with the token generator. */
 'use strict';
 
 import { formatIconModule, loadOcticons } from './generate.ts';
@@ -22,7 +20,7 @@ const source = formatIconModule(generation);
 if (process.argv.includes('--check')) {
   const current = fs.existsSync(OUTPUT) ? fs.readFileSync(OUTPUT, 'utf8') : '';
   if (current !== source) {
-    console.error('design-systems/primer/src/primitives/icons.generated.ts is stale. Run: pnpm icons:generate');
+    console.error('design-systems/primer/src/primitives/icons.generated.ts is stale. Run: pnpm generate');
     process.exit(1);
   }
   console.log('octicons: generated module is current (' + Object.keys(generation.icons).length + ' icons)');

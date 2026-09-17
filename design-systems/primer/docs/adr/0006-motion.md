@@ -17,7 +17,7 @@ Motion comes from Primer Primitives, through the generated module, and `src/foun
 | `stateChange` | 200 ms (`short`) | `move` (0.6, 0, 0.2, 1) | A control changes state, a draft is discarded |
 | `hover` | 100 ms (`micro`) | `hover` (0.25, 0.1, 0.25, 1) | Reserved for hover feedback |
 
-`prototypeMotionTransition()` turns a transition into a Figma Smart Animate action with a `CUSTOM_CUBIC_BEZIER` easing, so the prototype uses Primer's curve rather than the nearest Figma preset. `PRIMER.motion` (in `src/system.ts`) hands the names and the resolver to the plugin.
+`prototypeMotionTransition()` turns a transition into a Figma Smart Animate action with a `CUSTOM_CUBIC_BEZIER` easing, so the prototype uses Primer's curve rather than the nearest Figma preset. `designSystem.motion` (in `src/system.ts`) hands the names and the resolver to the plugin.
 
 `prefers-reduced-motion` maps every duration to 0 in the product. The Figma prototype shows the nominal motion, because a presentation cannot read the viewer's preference.
 

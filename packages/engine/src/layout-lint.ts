@@ -116,6 +116,14 @@ export const lint = function (
         sum += horiz ? flowKids[j].width : flowKids[j].height;
         crossMax = Math.max(crossMax, horiz ? flowKids[j].height : flowKids[j].width);
       }
+      // Figma leaves an auto-layout frame with nothing in its flow at the size
+      // it has, 100 px for a new frame, even when the frame is set to hug.
+      if (!flowKids.length && (n.primaryAxisSizingMode === 'AUTO' || n.counterAxisSizingMode === 'AUTO')) {
+        issues.push({
+          kind: 'empty-hug', node: pathOf(n),
+          detail: 'hugs nothing, so Figma keeps it at ' + n.width.toFixed(1) + 'x' + n.height.toFixed(1),
+        });
+      }
       var needed = padA + padB + gaps + sum;
       var have = horiz ? n.width : n.height;
       var fixedMain = horiz

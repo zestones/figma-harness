@@ -4,6 +4,7 @@
 export {
   bindDimension,
   bindDimensions,
+  dimensionReference,
   dimensionValue,
   setDimension,
 } from './dimension-bindings.ts';

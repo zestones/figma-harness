@@ -61,3 +61,26 @@ test('a fixed text box keeps its ellipsis only when it is set after the box', as
   wrapped.resize(120, wrapped.height);
   assert.ok(wrapped.height >= 32, 'an auto-height text grows with its lines');
 });
+
+test('an auto-layout frame that hugs with nothing in its flow is reported', async () => {
+  const { figma } = createFigmaMock();
+  const row = figma.createFrame();
+  row.name = 'row';
+  row.layoutMode = 'HORIZONTAL';
+  row.resize(200, 36);
+  const cell = figma.createFrame();
+  cell.name = 'cell';
+  cell.layoutMode = 'HORIZONTAL';
+  cell.resize(32, 100);
+  cell.counterAxisSizingMode = 'AUTO';
+  row.appendChild(cell);
+  // The 100 px cell also overflows its 36 px row.
+  assert.deepEqual(lintIssues(row), ['cross-axis-overflow', 'empty-hug']);
+
+  cell.counterAxisSizingMode = 'FIXED';
+  cell.resize(32, 18);
+  assert.deepEqual(lintIssues(row), []);
+  cell.appendChild(await textNode(figma, 'Menu'));
+  cell.counterAxisSizingMode = 'AUTO';
+  assert.deepEqual(lintIssues(row), []);
+});

@@ -1,16 +1,17 @@
-/* What this plugin builds: one design system and one app. To build another,
- * change these imports, the dependencies in plugin/package.json, and the design
- * system named in figma-harness.config.json. */
+/* What this plugin builds: one design system and one app. The build points
+ * the two imports below at the app figma-harness.config.json names (or the
+ * one FIGMA_HARNESS_APP selects) and at the design system that app depends
+ * on. Switch apps with `pnpm use <app>`. */
 
-import { PRIMER } from '@figma-harness/primer/system';
-import { RELAY_APP } from '@figma-harness/relay';
+import { app } from '@figma-harness/active-app';
+import { designSystem } from '@figma-harness/active-design-system';
 import type { PrototypeWiring } from './document/prototype.ts';
 
-export const DESIGN_SYSTEM = PRIMER;
-export const APP = RELAY_APP;
+export const DESIGN_SYSTEM = designSystem;
+export const APP = app;
 
 /** The app's transitions, animated with the design system's motion. */
 export const PROTOTYPE: PrototypeWiring = Object.freeze({
   transitions: APP.prototype.transitions,
-  motion: (name: string) => DESIGN_SYSTEM.motion.transition(name as typeof DESIGN_SYSTEM.motion.names[number]),
+  motion: (name: string) => DESIGN_SYSTEM.motion.transition(name),
 });

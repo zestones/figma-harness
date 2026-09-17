@@ -213,6 +213,7 @@ export type { TimelineItemOptions, TimelineOptions } from './components/timeline
 export { appHeader } from './patterns/shell/app-header.ts';
 export type { AppHeaderOptions } from './patterns/shell/app-header.ts';
 export { pageLayout } from './patterns/shell/page-layout.ts';
+export { starter } from './patterns/starter.ts';
 export type { PageLayout, PageLayoutOptions } from './patterns/shell/page-layout.ts';
 export { pageHeader } from './patterns/blocks/page-header.ts';
 export type { PageHeaderOptions } from './patterns/blocks/page-header.ts';

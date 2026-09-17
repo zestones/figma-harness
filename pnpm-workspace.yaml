@@ -2,6 +2,7 @@ packages:
   - packages/*
   - design-systems/*
   - apps/*
+  - templates/*
   - plugin
 
 # One version of each shared tool, referenced as "catalog:" by the packages.

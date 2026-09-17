@@ -1,5 +1,5 @@
 {
   "plugin": "plugin",
-  "designSystem": "design-systems/primer",
+  "app": "apps/relay",
   "renders": "renders"
 }

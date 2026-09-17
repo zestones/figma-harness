@@ -227,9 +227,9 @@ export function nodeSignature(node: MockNode): NodeSignature {
 }
 
 /** Explain a missing acceptance record instead of failing on a bare path. */
-export function missingBaselineMessage(baselineName: string, printCommand: string): string {
+export function missingBaselineMessage(baselineName: string, printCommand: string, app: string): string {
   return 'no accepted baseline: ' + baselineName + ' does not exist.\n'
     + 'Review the generated document in Figma Desktop, then record the reviewed output of '
-    + '`pnpm --silent ' + printCommand + '` in a BASELINE_ACCEPTANCE task '
+    + '`FIGMA_HARNESS_APP=' + app + ' pnpm --silent ' + printCommand + '` in a BASELINE_ACCEPTANCE task '
     + '(docs/ia/ACCEPTANCE_GATES.md).';
 }

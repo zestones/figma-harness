@@ -20,7 +20,7 @@ import { SHEET_GROUPS, SHEETS } from './sheets/catalog.ts';
 import { band, frameCaption } from './sheets/chrome.ts';
 import { SHEET_H, SHEET_W } from './sheets/support.ts';
 
-export const PRIMER: DesignSystemDefinition<MotionTransitionName> = Object.freeze({
+export const designSystem: DesignSystemDefinition<MotionTransitionName> = Object.freeze({
   name: 'Primer (light)',
   audit: Object.freeze({
     ...DESIGN_SYSTEM_AUDIT,

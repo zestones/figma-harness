@@ -1,10 +1,10 @@
-/* The fonts the configured design system uses, as bundled by Fontsource.
- * The harness measures text with them and the renderer draws with them, so the
- * two agree with each other and closely with Figma. The design system lists
- * them in its design-system.json manifest. */
+/* The fonts a design system uses, as bundled by Fontsource. The harness
+ * measures text with them and the renderer draws with them, so the two agree
+ * with each other and closely with Figma. Each design system lists them in its
+ * design-system.json manifest; a harness selects the design system it builds. */
 'use strict';
 
-import { designSystemLayout } from './workspace.ts';
+import { activeComposition, designSystemLayoutOf, workspacePackages } from './workspace.ts';
 
 const fs = require('node:fs') as typeof import('node:fs');
 const path = require('node:path') as typeof import('node:path');
@@ -23,37 +23,53 @@ interface BundledFonts {
   readonly families: Readonly<Record<string, BundledFamily>>;
 }
 
-let loaded: BundledFonts | null = null;
+const loaded = new Map<string, BundledFonts>();
+let selected: string | null = null;
 
-const bundledFonts = function (): BundledFonts {
-  if (loaded) return loaded;
-  const layout = designSystemLayout();
+const fontsOf = function (designSystemDirectory: string): BundledFonts {
+  const cached = loaded.get(designSystemDirectory);
+  if (cached) return cached;
+  const entry = workspacePackages().find((candidate) => candidate.dir === designSystemDirectory);
+  if (!entry || entry.role !== 'design-system') {
+    throw new Error(designSystemDirectory + ' is not a design-system package');
+  }
+  const layout = designSystemLayoutOf(entry);
   const families: Record<string, BundledFamily> = {};
-  for (const [family, entry] of Object.entries(layout.manifest.fonts.families)) {
-    const link = path.join(layout.root, 'node_modules', entry.package);
+  for (const [family, font] of Object.entries(layout.manifest.fonts.families)) {
+    const link = path.join(layout.root, 'node_modules', font.package);
     families[family] = Object.freeze({
       directory: fs.existsSync(link) ? fs.realpathSync(link) : link,
-      packageName: entry.package,
-      prefix: entry.package.split('/').pop() || entry.package,
-      weights: Object.freeze([...entry.weights]),
+      packageName: font.package,
+      prefix: font.package.split('/').pop() || font.package,
+      weights: Object.freeze([...font.weights]),
     });
   }
   const fallback = layout.manifest.fonts.default;
   if (!families[fallback]) {
-    throw new Error('the default font ' + fallback + ' is not one of the design system\'s bundled families');
+    throw new Error('the default font ' + fallback + ' is not one of ' + entry.name + '\'s bundled families');
   }
-  loaded = Object.freeze({ defaultFamily: fallback, families: Object.freeze(families) });
-  return loaded;
+  const fonts = Object.freeze({ defaultFamily: fallback, families: Object.freeze(families) });
+  loaded.set(designSystemDirectory, fonts);
+  return fonts;
 };
 
-/** Every bundled family, by name. */
+/** Measure and draw with this design system's fonts from now on. */
+export function useDesignSystemFonts(designSystemDirectory: string): void {
+  selected = designSystemDirectory;
+}
+
+const current = function (): BundledFonts {
+  return fontsOf(selected || activeComposition().designSystem.dir);
+};
+
+/** Every bundled family of the selected design system, by name. */
 export function bundledFamilies(): Readonly<Record<string, BundledFamily>> {
-  return bundledFonts().families;
+  return current().families;
 }
 
 /** The family unknown or unstyled text is measured and drawn with. */
 export function defaultFamily(): string {
-  return bundledFonts().defaultFamily;
+  return current().defaultFamily;
 }
 
 /** Unicode subsets searched, in order, for a character's glyph. */

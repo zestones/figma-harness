@@ -20,9 +20,12 @@ import {
   type ColorLookup,
 } from './a11y/rules/surface-contrast.ts';
 import { createTreeAudits } from './a11y/tree-audits.ts';
+import type { WorkspacePackage } from '../core/workspace.ts';
 import type { ContractTreeHarness } from './a11y/tree/types.ts';
 
-interface A11yHarness extends ContractTreeHarness {
+export interface A11yHarness extends ContractTreeHarness {
+  buildAll(): Promise<unknown>;
+  readonly composition: { readonly designSystem: WorkspacePackage };
   vars: TokenVariable[];
 }
 
@@ -40,8 +43,8 @@ async function collect(stage: string): Promise<void> {
   );
 }
 
-async function run(): Promise<void> {
-  const harness = createHarness();
+/** Build the document and run every accessibility rule. Returns the failure count. */
+async function auditAccessibility(harness: A11yHarness): Promise<number> {
   const {
     adjacency,
     controlFocus,
@@ -61,7 +64,7 @@ async function run(): Promise<void> {
   const designSystem = harness.runtime.CONTRACT.designSystem;
   auditSurfaceContrast(color, add, designSystem);
   auditCategoricalSeparation(color, adjacentPairs, add, designSystem);
-  await auditGeneratedCvd(colors, add, designSystem);
+  await auditGeneratedCvd(colors, add, designSystem, harness.composition.designSystem);
   auditTokenOwnership(analyzeProjectColorOwnership(designSystem), add);
   await collect('token rules');
   await treeContrast(add);
@@ -73,11 +76,14 @@ async function run(): Promise<void> {
   await soleCarrierCheck(add);
   await collect('colour carriers');
 
-  const failures = reportFindings(findings);
-  process.exit(failures ? 1 : 0);
+  return reportFindings(findings);
 }
 
-run().catch((error: unknown) => {
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module) {
+  auditAccessibility(createHarness()).then((failures) => {
+    process.exit(failures ? 1 : 0);
+  }).catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

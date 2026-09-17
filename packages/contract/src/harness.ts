@@ -107,6 +107,8 @@ export interface DesignSystemContract {
     readonly show: readonly string[];
   };
   readonly focus: FocusContract;
+  /** The square grids icons are drawn on, in pixels. */
+  readonly iconSizes: readonly number[];
   /** The page surface: a translucent colour with no declared ground is measured over it. */
   readonly pageGround: string;
   readonly radiusScale: readonly number[];

@@ -8,7 +8,7 @@ import {
   workspacePageNames,
   type WorkspaceContract,
 } from '@figma-harness/contract';
-import { pluginLayout, repositoryRoot } from '../core/workspace.ts';
+import { appLayout, pluginLayout, repositoryRoot } from '../core/workspace.ts';
 import type {
   MockNode,
   MockStore,
@@ -123,14 +123,19 @@ export async function createSignature(harness: DesignHarness = createHarness()):
 }
 
 async function run(): Promise<void> {
+  const app = appLayout();
   const signature = await createSignature();
   if (!CHECK) {
     console.log(JSON.stringify(signature, null, 2));
     return;
   }
-  const BASELINE_FILE = pluginLayout().baselines.design;
+  if (app.unreviewed) {
+    console.log('design: ' + signature.protectedNodeCount + ' protected nodes built; not compared: ' + app.unreviewed);
+    return;
+  }
+  const BASELINE_FILE = app.baselines.design;
   if (!fs.existsSync(BASELINE_FILE)) {
-    console.error(missingBaselineMessage(path.relative(repositoryRoot(), BASELINE_FILE), 'design:signature'));
+    console.error(missingBaselineMessage(path.relative(repositoryRoot(), BASELINE_FILE), 'design:signature', app.package.relative));
     process.exitCode = 1;
     return;
   }

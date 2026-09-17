@@ -17,7 +17,9 @@ const { loadContract } = require('../src/bundle/contract-loader.ts') as
 const { protectedPageNames, workspacePageNames } = require('@figma-harness/contract') as
   typeof import('@figma-harness/contract');
 
-const WORKSPACE = loadContract().workspace;
+// The starter app, so the test does not depend on which app is active.
+const STARTER = { app: 'templates/app' } as const;
+const WORKSPACE = loadContract(STARTER).workspace;
 const PROTECTED_PAGE_NAMES = protectedPageNames(WORKSPACE);
 const REQUIRED_WORKSPACE_PAGE_NAMES = workspacePageNames(WORKSPACE);
 const { createHarness } = require('../src/runtime/harness.ts') as
@@ -45,7 +47,7 @@ test('stable signature scope requires all three pages but selects only 01 and 02
 });
 
 test('Design Lab rebuild replaces disposable studies and preserves the protected pages', async () => {
-  const harness = createHarness();
+  const harness = createHarness(STARTER);
   const pages = await harness.buildAll();
   const lab = pages.find((page) => page.name === '03 · Design lab');
   const screens = pages.find((page) => page.name === '01 · Screens');

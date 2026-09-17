@@ -24,7 +24,7 @@ test('Relay screen and transition matrices are complete, frozen, and Figma-free'
     Object.isFrozen(transition)
     && Object.isFrozen(transition.sources)
     && Object.isFrozen(transition.selector)), true);
-  assert.deepEqual(validateFlowContract(loadContract().document.prototype), []);
+  assert.deepEqual(validateFlowContract(loadContract({ app: 'apps/relay' }).document.prototype), []);
 
   assert.deepEqual(SCREEN_GROUPS.map((group) => [group.letter, group.prototype, group.screens.length]), [
     ['A', true, 2], ['B', true, 2], ['C', true, 3],

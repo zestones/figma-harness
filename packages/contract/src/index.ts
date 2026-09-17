@@ -28,6 +28,12 @@ export type {
 } from './flows.ts';
 export { labPageName, protectedPageNames, workspacePageNames } from './harness.ts';
 export type {
+  StarterAction,
+  StarterItem,
+  StarterScreenOptions,
+  StarterVocabulary,
+} from './starter.ts';
+export type {
   AuditedNode,
   CategoricalWaiver,
   ColorSharingDecision,

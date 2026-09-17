@@ -14,9 +14,9 @@ import {
   defaultFamily,
   fontWeight,
 } from '../core/bundled-fonts.ts';
+import { woffTables } from '../core/woff.ts';
 
 const fs = require('node:fs') as typeof import('node:fs');
-const zlib = require('node:zlib') as typeof import('node:zlib');
 
 /** Advance widths in em, by code point, for one family and weight. */
 export type AdvanceTable = ReadonlyMap<number, number>;
@@ -24,22 +24,6 @@ export type AdvanceTable = ReadonlyMap<number, number>;
 /** Width used for a character none of the bundled subsets contain. */
 const FALLBACK_EM = 0.6;
 const tables = new Map<string, Map<number, number>>();
-
-function woffTables(file: string): Map<string, Buffer> {
-  const buffer = fs.readFileSync(file);
-  if (buffer.toString('latin1', 0, 4) !== 'wOFF') throw new Error('not a WOFF font: ' + file);
-  const result = new Map<string, Buffer>();
-  const count = buffer.readUInt16BE(12);
-  for (let index = 0; index < count; index++) {
-    const entry = 44 + index * 20;
-    const offset = buffer.readUInt32BE(entry + 4);
-    const stored = buffer.readUInt32BE(entry + 8);
-    const original = buffer.readUInt32BE(entry + 12);
-    const data = buffer.subarray(offset, offset + stored);
-    result.set(buffer.toString('latin1', entry, entry + 4), stored < original ? zlib.inflateSync(data) : data);
-  }
-  return result;
-}
 
 function glyphsByCodePoint(cmap: Buffer): Map<number, number> {
   const glyphs = new Map<number, number>();
@@ -107,7 +91,7 @@ export function advanceTable(family: string, style: string): AdvanceTable {
   const wanted = fontWeight(style || 'Regular');
   const weight = weights.reduce((best, candidate) =>
     Math.abs(candidate - wanted) < Math.abs(best - wanted) ? candidate : best, weights[0]);
-  const key = name + ':' + weight;
+  const key = families[name].directory + ':' + weight;
   let table = tables.get(key);
   if (!table) {
     table = new Map();

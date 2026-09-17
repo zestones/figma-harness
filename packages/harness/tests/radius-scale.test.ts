@@ -7,7 +7,8 @@ import type { HarnessContract } from '@figma-harness/contract';
 const assert: typeof import('node:assert/strict') = require('node:assert/strict');
 const test: typeof import('node:test') = require('node:test');
 
-const contract = loadContract();
+// The starter app, so the test does not depend on which app is active.
+const contract = loadContract({ app: 'templates/app' });
 const SCALE = contract.designSystem.radiusScale;
 /* Radii the configured design system does not declare. */
 const OFF_SCALE = [1, 2, 4, 5, 7, 8, 10, 11, 13].filter((radius) => !SCALE.includes(radius)).slice(0, 5);
@@ -34,7 +35,8 @@ test('radius audit accepts the scale and round geometry, including fractional ma
   const { mark, pages } = fixture();
   assert.equal(OFF_SCALE.length, 5, 'the scale leaves room for off-scale samples');
   for (const radius of SCALE) mark(radius);
-  mark(4, 8, 8);
+  // An off-scale radius that makes a circle of its mark.
+  mark(OFF_SCALE[0], OFF_SCALE[0] * 2, OFF_SCALE[0] * 2);
   mark(1.5, 12, 3);
   mark(5.5, 11, 11);
   const audit = inspectRadii(pages, contract);

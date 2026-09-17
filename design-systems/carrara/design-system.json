@@ -1,0 +1,13 @@
+{
+  "name": "Carrara",
+  "generated": {
+    "cvdTable": "src/foundations/cvd.generated.ts"
+  },
+  "fonts": {
+    "default": "Inter",
+    "families": {
+      "Inter": { "package": "@fontsource/inter", "weights": [400, 500, 600] },
+      "JetBrains Mono": { "package": "@fontsource/jetbrains-mono", "weights": [400] }
+    }
+  }
+}

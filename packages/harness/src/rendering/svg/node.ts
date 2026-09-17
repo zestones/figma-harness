@@ -142,7 +142,10 @@ export function drawNode(
   const width = node.width || 0;
   const height = node.height || 0;
   const opacity = node.opacity == null ? 1 : node.opacity;
-  const radius = Math.min(node.cornerRadius || 0, width / 2, height / 2);
+  // An ellipse is drawn as a fully rounded box: a circle when it is square.
+  const radius = node.type === 'ELLIPSE'
+    ? Math.min(width, height) / 2
+    : Math.min(node.cornerRadius || 0, width / 2, height / 2);
 
   if (node.type === 'TEXT') {
     drawText(node, x, y, width, height, opacity, output, context);

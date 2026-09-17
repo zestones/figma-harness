@@ -41,6 +41,24 @@ function flowMetrics(node: MockNode): FlowMetrics {
   };
 }
 
+/* The height of a wrapping row: its lines, broken where solveLayout breaks them. */
+function wrappedHeight(node: MockNode, metrics: FlowMetrics): number {
+  const available = node.width - metrics.paddingMainStart - metrics.paddingMainEnd;
+  let x = 0;
+  let total = 0;
+  let line = 0;
+  for (const child of metrics.flow) {
+    if (x > 0 && x + child.width > available) {
+      total += line + (node.counterAxisSpacing || 0);
+      x = 0;
+      line = 0;
+    }
+    x += child.width + node.itemSpacing;
+    line = Math.max(line, child.height);
+  }
+  return total + line;
+}
+
 function applyHugSize(node: MockNode, metrics: FlowMetrics): void {
   const {
     crossMax,
@@ -52,13 +70,16 @@ function applyHugSize(node: MockNode, metrics: FlowMetrics): void {
     paddingMainEnd,
     paddingMainStart,
   } = metrics;
+  // Figma leaves an auto-layout frame with nothing in its flow at the size it has.
+  if (!metrics.flow.length) return;
+  const wraps = horizontal && node.layoutWrap === 'WRAP';
   if (node.primaryAxisSizingMode === 'AUTO') {
     const value = paddingMainStart + paddingMainEnd + gaps + mainSum;
     if (horizontal) node.width = value;
     else node.height = value;
   }
   if (node.counterAxisSizingMode === 'AUTO') {
-    const value = crossMax + paddingCrossStart + paddingCrossEnd;
+    const value = (wraps ? wrappedHeight(node, metrics) : crossMax) + paddingCrossStart + paddingCrossEnd;
     if (horizontal) node.height = value;
     else node.width = value;
   }

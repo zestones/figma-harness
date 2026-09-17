@@ -15,7 +15,7 @@ import { apca } from './apca.ts';
 import { flatten, ratio as colorRatio, rgba, toHex, type Color } from '../color/core/color.ts';
 import { readProjectColorTokens } from '../color/core/token-source.ts';
 import { loadContract } from '../bundle/contract-loader.ts';
-import type { ContrastPairContract } from '@figma-harness/contract';
+import type { ContrastPairContract, DesignSystemContract } from '@figma-harness/contract';
 
 export interface PairMeasurement {
   readonly background: Color;
@@ -47,8 +47,8 @@ export function measurePair(
   return { foreground, background, ratio: colorRatio(foreground, background, 0.03928) };
 }
 
-if (require.main === module) {
-  const contract = loadContract().designSystem;
+/** Measure every declared pair and print the table. Returns the failure count. */
+function auditContrast(contract: DesignSystemContract, options: { all?: boolean } = {}): number {
   const tokens = readProjectColorTokens(contract);
   const pairs = contract.contrastPairs;
   let fails = 0;
@@ -79,16 +79,21 @@ if (require.main === module) {
       (lc == null ? '' : 'Lc ' + lc.toFixed(0).padStart(3) + '  ') + what]);
   }
 
-  const w0 = Math.max(...rows.map((row) => row[0].length));
-  const w1 = Math.max(...rows.map((row) => row[1].length));
-  const w2 = Math.max(...rows.map((row) => row[2].length));
+  const w0 = Math.max(0, ...rows.map((row) => row[0].length));
+  const w1 = Math.max(0, ...rows.map((row) => row[1].length));
+  const w2 = Math.max(0, ...rows.map((row) => row[2].length));
   for (const row of rows) {
-    if (process.argv.includes('--all') || row[0] !== 'ok') {
+    if (options.all || row[0] !== 'ok') {
       console.log(row[0].padEnd(w0) + '  ' + row[1].padEnd(w1) + '  ' + row[2].padStart(w2) + '  ' + row[3]);
     }
   }
   const thinCount = rows.filter((row) => row[0] === 'THIN').length;
   console.log('\n' + pairs.length + ' pairs · ' + fails + ' failing · ' + warns + ' flagged'
     + (thinCount ? ' (' + thinCount + ' legal under 1.4.3 but under APCA Lc 60)' : ''));
+  return fails;
+}
+
+if (require.main === module) {
+  const fails = auditContrast(loadContract().designSystem, { all: process.argv.includes('--all') });
   process.exit(fails ? 1 : 0);
 }

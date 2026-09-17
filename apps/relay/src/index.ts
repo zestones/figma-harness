@@ -9,7 +9,7 @@ import { CATALOG_VERSION, SCREEN_GROUPS, START_SCREEN } from './screens.ts';
 import { SIGNATURE_COMPONENTS } from './signatures.ts';
 import { STRESS_CONTRACT } from './stress-cases.ts';
 
-export const RELAY_APP: AppDefinition<MotionTransitionName> = Object.freeze({
+export const app: AppDefinition<MotionTransitionName> = Object.freeze({
   name: 'Relay',
   catalogVersion: CATALOG_VERSION,
   lab: LAB_EXPERIMENTS,

@@ -1,6 +1,7 @@
 'use strict';
 
 import {
+  appDesignSystem,
   readConfig,
   workspacePackages,
   type WorkspacePackage,
@@ -96,16 +97,34 @@ function workspaceIssues(issues: string[]): WorkspacePackage[] {
     const config = readConfig(WORKSPACE_ROOT);
     const byPath = new Map(packages.map((entry) => [entry.relative, entry]));
     const plugin = byPath.get(config.plugin);
-    const designSystem = byPath.get(config.designSystem);
+    const app = byPath.get(config.app);
     if (!plugin || plugin.role !== 'plugin') issues.push('figma-harness.config.json must name the plugin package');
-    if (!designSystem || designSystem.role !== 'design-system') {
-      issues.push('figma-harness.config.json must name a design-system package');
-    }
-    if (plugin && designSystem && !(plugin.manifest.dependencies || {})[designSystem.name]) {
-      issues.push('the plugin must depend on the configured design system ' + designSystem.name);
+    if (!app || app.role !== 'app') issues.push('figma-harness.config.json must name an app package');
+    for (const dependency of Object.keys(plugin?.manifest.dependencies || {})) {
+      const target = packages.find((entry) => entry.name === dependency);
+      if (target && (target.role === 'app' || target.role === 'design-system')) {
+        issues.push('the plugin must reach ' + dependency + ' through the active composition, not a dependency');
+      }
     }
   } catch (error) {
     issues.push(errorMessage(error));
+  }
+  for (const app of packages.filter((entry) => entry.role === 'app')) {
+    try {
+      // Templates are copied, so only the app template may use the design system template.
+      if (appDesignSystem(app, WORKSPACE_ROOT).template && !app.template) {
+        issues.push(app.name + ' is built with the design system template; build it with a design system of its own');
+      }
+    } catch (error) {
+      issues.push(errorMessage(error));
+    }
+  }
+  // The app template runs on every design system through this vocabulary.
+  for (const designSystem of packages.filter((entry) => entry.role === 'design-system')) {
+    const facade = path.join(designSystem.dir, 'src', 'index.ts');
+    if (fs.existsSync(facade) && !/^export\s*\{[^}]*\bstarter\b[^}]*\}\s*from\s*'[^']+';$/m.test(read(facade))) {
+      issues.push(designSystem.name + ' must export the starter vocabulary from src/index.ts');
+    }
   }
   return packages;
 }
@@ -151,7 +170,8 @@ export function validateAuthoringContract(): string[] {
     issues.push(...validatePolicy(policy));
     const allows = (mode: string, filename: string): boolean =>
       ((policy.modes[mode] && policy.modes[mode].allowed) || []).some((pattern: string) => pathMatches(filename, pattern));
-    for (const app of packages.filter((entry) => entry.role === 'app')) {
+    // Templates are copied, never authored in place.
+    for (const app of packages.filter((entry) => entry.role === 'app' && !entry.template)) {
       if (!allows('PAGE_AUTHORING', app.relative + '/src/screens.ts')) {
         issues.push('PAGE_AUTHORING must allow the screen registry of ' + app.name);
       }
@@ -172,19 +192,21 @@ export function validateAuthoringContract(): string[] {
       scripts?: Record<string, string>;
     }).scripts || {};
     for (const name of [
-      'build', 'build:check', 'guard', 'guard:architecture', 'guard:authoring',
-      'guard:flows', 'guard:hygiene', 'guard:scope', 'lint', 'render:fonts:check', 'smoke:figma:preflight',
-      'test', 'typecheck', 'verify',
+      'build', 'build:check', 'check:generated', 'create:app', 'create:design-system', 'each',
+      'guard', 'guard:architecture', 'guard:authoring', 'guard:flows', 'guard:hygiene', 'guard:scope',
+      'lint', 'render:fonts:check', 'smoke:figma:preflight', 'test', 'typecheck', 'use', 'verify',
     ]) {
       if (!scripts[name]) issues.push('package script is missing: ' + name);
     }
     if (!scripts['guard'] || !scripts['guard'].includes('pnpm run guard:flows')) {
       issues.push('guard must execute: pnpm run guard:flows');
     }
+    // Checks that read a composition run once per app, and for the app template on every design system.
     for (const command of [
-      'pnpm run guard', 'pnpm run build:check', 'pnpm run lint', 'pnpm run typecheck',
-      'pnpm run render:fonts:check', 'pnpm test', 'pnpm run audit', 'pnpm run design:check',
-      'pnpm run design:components:check',
+      'pnpm run guard', 'pnpm run build:check', 'pnpm run check:generated', 'pnpm run lint', 'pnpm run typecheck',
+      'pnpm test', 'pnpm run each render:fonts:check', 'pnpm run each audit ', 'pnpm run each audit:contrast',
+      'pnpm run each audit:a11y', 'pnpm run each audit:theme', 'pnpm run each design:check',
+      'pnpm run each design:components:check',
     ]) {
       if (!scripts['verify'] || !scripts['verify'].includes(command)) {
         issues.push('verify must execute: ' + command);

@@ -20,7 +20,7 @@ The design system is GitHub's open-source [Primer](https://primer.style), in its
 
 ## Consequences
 
-Updating Primer is a dependency bump followed by `pnpm tokens:generate` and `pnpm icons:generate`, then the audits, whose findings show what the new values changed. A token the kit needs is added to the catalog, never typed into a foundation. Dark and high-contrast themes are out of scope: the audits and waivers describe the light theme only.
+Updating Primer is a dependency bump followed by `pnpm generate`, which regenerates the tokens and the icons, then the audits, whose findings show what the new values changed. A token the kit needs is added to the catalog, never typed into a foundation. Dark and high-contrast themes are out of scope: the audits and waivers describe the light theme only.
 
 ## Rejected alternatives
 

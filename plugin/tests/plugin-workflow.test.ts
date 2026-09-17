@@ -17,6 +17,22 @@ const pageDigest = function (page: MockNode): string {
   return snapshotComponentNodeSha256(page);
 };
 
+/* The plugin is exercised with the starter app, whichever app is active. */
+const STARTER = { app: 'templates/app' } as const;
+
+const starterHarness = function (): ReturnType<typeof createHarness> {
+  return createHarness(STARTER);
+};
+
+/* The prototype frames, in canvas order. */
+const prototypeFrames = function (harness: ReturnType<typeof createHarness>): Array<{ key: string; title: string }> {
+  return harness.runtime.CONTRACT.document.prototype.frames.map((frame) => ({ key: frame.key, title: frame.title }));
+};
+
+const escapeRegExp = function (value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 const screenByKey = function (page: MockNode, key: string): MockNode {
   var frame = page.children.find(function (candidate) {
     return candidate.getPluginData('workspace.screen.key') === key;
@@ -26,7 +42,7 @@ const screenByKey = function (page: MockNode, key: string): MockNode {
 };
 
 test('screen subtree reuse preserves exact output while avoiding native factory work', async () => {
-  let optimized: ReturnType<typeof createHarness> | null = createHarness();
+  let optimized: ReturnType<typeof createHarness> | null = starterHarness();
   await optimized.runtime.loadFonts();
   await optimized.runtime.ensureTokens();
   await optimized.runtime.buildScreens({ reuse: true });
@@ -40,7 +56,6 @@ test('screen subtree reuse preserves exact output while avoiding native factory 
     reuseEnabled: optimized.runtime.LAST_SCREEN_MATERIALIZATION?.reuseEnabled,
     clonedSubtrees: optimized.runtime.LAST_SCREEN_MATERIALIZATION?.clonedSubtrees || 0,
     cloneMilliseconds: optimized.runtime.LAST_SCREEN_MATERIALIZATION?.cloneMilliseconds,
-    clonedStruts: optimized.metrics.nodes.clonedStruts,
     createFrame: optimized.metrics.createFrame,
     createText: optimized.metrics.createText,
     createNodeFromSvg: optimized.metrics.createNodeFromSvg,
@@ -50,7 +65,7 @@ test('screen subtree reuse preserves exact output while avoiding native factory 
   for (const page of optimized.pages) for (const child of [...page.children]) child.remove();
   optimized = null;
 
-  const reference = createHarness();
+  const reference = starterHarness();
   await reference.runtime.loadFonts();
   await reference.runtime.ensureTokens();
   await reference.runtime.buildScreens({ reuse: false });
@@ -59,30 +74,29 @@ test('screen subtree reuse preserves exact output while avoiding native factory 
   assert.equal(optimizedNodes, countNodes([reference.pages[0]]));
   assert.equal(optimizedEvidence.links, reference.runtime.LAST_LINKS);
   assert.equal(optimizedEvidence.reuseEnabled, true);
-  // App headers: one per section, cloned for the two other Releases screens and
-  // the two other Settings screens.
-  assert.equal(optimizedEvidence.clonedSubtrees, 4);
+  // Every starter screen shares one header: built once, cloned for the others.
+  assert.equal(optimizedEvidence.clonedSubtrees, prototypeFrames(reference).length - 1);
   assert.equal(
     Number.isFinite(optimizedEvidence.cloneMilliseconds),
     true,
   );
-  assert.ok(optimizedEvidence.clonedStruts > 0);
   assert.ok(optimizedEvidence.createFrame < reference.metrics.createFrame);
   assert.ok(optimizedEvidence.createText < reference.metrics.createText);
-  assert.ok(optimizedEvidence.createNodeFromSvg < reference.metrics.createNodeFromSvg);
+  assert.ok(optimizedEvidence.createNodeFromSvg <= reference.metrics.createNodeFromSvg);
   assert.ok(optimizedEvidence.appendChild < reference.metrics.nodes.appendChild);
   assert.ok(optimizedEvidence.setTextStyle < reference.metrics.nodes.setTextStyle);
 });
 
 test('selected-screen refresh is idempotent and preserves stable Figma identities', async () => {
-  const harness = createHarness();
+  const harness = starterHarness();
   await harness.runtime.loadFonts();
   await harness.runtime.ensureTokens();
   await harness.runtime.buildScreens();
 
   const page = harness.pages[0] as MockNode & { selection: MockNode[] };
-  const selected = screenByKey(page, 'overview');
-  const untouched = screenByKey(page, 'settings');
+  const frames = prototypeFrames(harness);
+  const selected = screenByKey(page, frames[0].key);
+  const untouched = screenByKey(page, frames[frames.length - 1].key);
   const selectedId = selected.id;
   const untouchedId = untouched.id;
   const originalChild = selected.children[0];
@@ -111,8 +125,8 @@ test('selected-screen refresh is idempotent and preserves stable Figma identitie
   assert.equal(first.rewiredLinks, expectedLinks);
   assert.equal(pageDigest(page), expectedDigest);
   assert.equal(countNodes([page]), expectedNodes);
-  assert.equal(selected.getPluginData('workspace.screen.key'), 'overview');
-  assert.equal(untouched.getPluginData('workspace.screen.key'), 'settings');
+  assert.equal(selected.getPluginData('workspace.screen.key'), frames[0].key);
+  assert.equal(untouched.getPluginData('workspace.screen.key'), frames[frames.length - 1].key);
 
   page.selection = [selected];
   const reactionsBeforeTargetedRefresh = harness.metrics.nodes.setReactions;
@@ -131,7 +145,7 @@ test('selected-screen refresh is idempotent and preserves stable Figma identitie
 });
 
 test('every generated screen supports an exact source-local refresh', async () => {
-  const harness = createHarness();
+  const harness = starterHarness();
   await harness.runtime.loadFonts();
   await harness.runtime.ensureTokens();
   await harness.runtime.buildScreens();
@@ -144,7 +158,8 @@ test('every generated screen supports an exact source-local refresh', async () =
     return candidate.type === 'FRAME' && !!candidate.getPluginData('workspace.screen.key');
   });
   // Every generated screen takes part in the prototype.
-  assert.equal(generated.length, 7);
+  assert.equal(generated.length, prototypeFrames(harness).length);
+  assert.ok(generated.length > 1);
 
   for (const screen of generated) {
     const stableId = screen.id;
@@ -233,7 +248,7 @@ test('absolute children stop contributing to the mock hug size before the next m
 });
 
 test('plugin UI exposes contextual fast refresh and reports scoped verification', async () => {
-  const harness = createHarness();
+  const harness = starterHarness();
   await harness.dispatchUiMessage({ type: 'ready' });
   assert.deepEqual(JSON.parse(JSON.stringify(harness.uiMessages.at(-1))), {
     type: 'context',
@@ -267,7 +282,8 @@ test('plugin UI exposes contextual fast refresh and reports scoped verification'
   assert.equal(harness.pages[0].children.length, expectedScreenRoots);
 
   const page = harness.pages[0] as MockNode & { selection: MockNode[] };
-  const screen = screenByKey(page, 'overview');
+  const [first] = prototypeFrames(harness);
+  const screen = screenByKey(page, first.key);
   page.selection = [screen.children[0]];
   harness.emit('selectionchange');
   assert.equal((harness.uiMessages.at(-1) as { canRefresh?: boolean }).canRefresh, true);
@@ -277,7 +293,7 @@ test('plugin UI exposes contextual fast refresh and reports scoped verification'
     return (message as { type?: string }).type === 'status';
   }) as { status: string; text: string };
   assert.equal(refreshed.status, 'done');
-  assert.match(refreshed.text, /01 · Overview refreshed/);
+  assert.match(refreshed.text, new RegExp(escapeRegExp(first.title) + ' refreshed'));
   const rewiredMatch = refreshed.text.match(
     new RegExp(String(expectedLinks) + ' prototype links retained\\. (\\d+) rewired and verified'),
   );
@@ -294,7 +310,7 @@ test('plugin UI exposes contextual fast refresh and reports scoped verification'
 });
 
 test('complete UI rebuild is idempotent and reports its native-cost phases', async () => {
-  const harness = createHarness();
+  const harness = starterHarness();
   await harness.dispatchUiMessage({ type: 'run', task: 'all' });
   const expectedLinks = harness.runtime.LAST_LINKS;
   const expectedReusedSubtrees = harness.runtime.LAST_SCREEN_MATERIALIZATION?.clonedSubtrees;

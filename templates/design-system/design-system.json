@@ -1,0 +1,12 @@
+{
+  "name": "Template",
+  "generated": {
+    "cvdTable": "src/foundations/cvd.generated.ts"
+  },
+  "fonts": {
+    "default": "Noto Sans",
+    "families": {
+      "Noto Sans": { "package": "@fontsource/noto-sans", "weights": [400, 600] }
+    }
+  }
+}

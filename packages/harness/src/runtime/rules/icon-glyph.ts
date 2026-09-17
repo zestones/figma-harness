@@ -4,11 +4,14 @@ import type { MockNode } from '../figma-mock/types.ts';
 import type { AuditRule } from './types.ts';
 
 const GLYPH_KEY = 'spec.icon.glyph';
-const DESIGN_HEIGHTS = new Set([12, 16, 24]);
 
-/** Every icon is a filled Octicon: square, drawn from a published grid, every
- * vector filled with one bound colour and stroked with nothing. */
-export function inspectIcons(pages: readonly MockNode[]): { icons: number; issues: Map<string, number> } {
+/** Every icon is a filled glyph: square, drawn on one of the design system's
+ * icon grids, every vector filled with one bound colour and stroked with nothing. */
+export function inspectIcons(
+  pages: readonly MockNode[],
+  iconSizes: readonly number[],
+): { icons: number; issues: Map<string, number> } {
+  const designHeights = new Set(iconSizes);
   let icons = 0;
   const issues = new Map<string, number>();
   const report = (key: string): void => { issues.set(key, (issues.get(key) || 0) + 1); };
@@ -18,7 +21,7 @@ export function inspectIcons(pages: readonly MockNode[]): { icons: number; issue
       const name = String(node.name);
       const glyph = node.getPluginData(GLYPH_KEY);
       const height = Number(glyph.split('@')[1]);
-      if (!glyph || !DESIGN_HEIGHTS.has(height)) report(name + '  has no published design grid');
+      if (!glyph || !designHeights.has(height)) report(name + '  has no published design grid');
       else if (!String(node._svg).includes('viewBox="0 0 ' + height + ' ' + height + '"')) {
         report(name + '  is not drawn on its ' + height + ' px grid');
       }
@@ -42,11 +45,11 @@ export function inspectIcons(pages: readonly MockNode[]): { icons: number; issue
 
 const rule: AuditRule = {
   id: 'icon-glyph',
-  run({ pages }) {
-    const { icons, issues } = inspectIcons(pages);
+  run({ pages, runtime }) {
+    const { icons, issues } = inspectIcons(pages, runtime.CONTRACT.designSystem.iconSizes);
     console.log('\n--- icon glyphs ---');
     if (!issues.size) {
-      console.log('  ' + icons + ' icons: filled Octicons on their own grid, one bound colour, no strokes');
+      console.log('  ' + icons + ' icons: filled glyphs on their own grid, one bound colour, no strokes');
       return 0;
     }
     let count = 0;

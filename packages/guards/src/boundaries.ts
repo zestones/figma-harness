@@ -1,11 +1,16 @@
 /* Architecture boundaries for the product packages: which package may import
  * which, and which layer inside a package may import which. A package's role
  * comes from its package.json ("figmaHarness.role"); a layer comes from the
- * file's place inside the package's src/. Tooling is checked by
- * tooling-hygiene.ts. */
+ * file's place inside the package's src/. The plugin reaches the active app
+ * and its design system through two build aliases, checked here as imports of
+ * the files they point at. Tooling is checked by tooling-hygiene.ts. */
 'use strict';
 
 import {
+  ACTIVE_APP_SPECIFIER,
+  ACTIVE_DESIGN_SYSTEM_SPECIFIER,
+  configuredComposition,
+  exportedFile,
   repositoryRoot,
   workspacePackages,
   type PackageRole,
@@ -158,6 +163,15 @@ export function validateSourceGraph(options: SourceGraphOptions = {}): SourceGra
     return { files: 0, violations: [{ file: 'pnpm-workspace.yaml', line: 1, message: errorMessage(error) }] };
   }
   const product = packages.filter((entry) => entry.role !== 'tooling');
+  // What the build aliases resolve to for the configured app.
+  const aliases = new Map<string, string>();
+  try {
+    const composition = configuredComposition(root);
+    aliases.set(ACTIVE_APP_SPECIFIER, exportedFile(composition.app, '.'));
+    aliases.set(ACTIVE_DESIGN_SYSTEM_SPECIFIER, exportedFile(composition.designSystem, './system'));
+  } catch (error) {
+    violations.push({ file: 'figma-harness.config.json', line: 1, message: errorMessage(error) });
+  }
   const files = new Map<string, ProductFile>();
   for (const owner of product) {
     const sources = path.join(owner.dir, 'src');
@@ -230,6 +244,17 @@ export function validateSourceGraph(options: SourceGraphOptions = {}): SourceGra
         target = files.get(absolute);
         if (!target || target.owner !== file.owner) {
           report(dependency.line, 'a relative import may not leave its package; import ' + specifier + ' by package name');
+          continue;
+        }
+      } else if (specifier === ACTIVE_APP_SPECIFIER || specifier === ACTIVE_DESIGN_SYSTEM_SPECIFIER) {
+        if (file.layer !== 'plugin') {
+          report(dependency.line, 'only the plugin composes the active app and design system: ' + specifier);
+          continue;
+        }
+        const aliased = aliases.get(specifier);
+        target = aliased ? files.get(aliased) : undefined;
+        if (!target) {
+          report(dependency.line, 'cannot resolve ' + specifier + ' for the configured app');
           continue;
         }
       } else {

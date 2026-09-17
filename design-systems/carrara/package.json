@@ -1,0 +1,28 @@
+{
+  "name": "@figma-harness/carrara",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Carrara, a precise design system for finance and operations software, created from the design system template",
+  "type": "module",
+  "figmaHarness": {
+    "role": "design-system"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./system": "./src/system.ts"
+  },
+  "scripts": {
+    "generate": "tsx generators/icons/icons.ts",
+    "check:generated": "tsx generators/icons/icons.ts --check"
+  },
+  "dependencies": {
+    "@figma-harness/contract": "workspace:*",
+    "@figma-harness/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@figma-harness/harness": "workspace:*",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "heroicons": "2.2.0"
+  }
+}

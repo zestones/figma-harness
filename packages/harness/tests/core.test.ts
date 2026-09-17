@@ -127,22 +127,25 @@ test('runtime token adapters resolve the first mode, the alpha and bound paints 
   });
 });
 
+const STARTER = { app: 'templates/app' } as const;
+
 test('harness import is side-effect free and instances do not share state', () => {
   delete runtimeGlobal.figma;
   delete runtimeGlobal.FigmaHarnessPlugin;
   const { createHarness } = require('../src/runtime/harness.ts') as typeof import('../src/runtime/harness.ts');
   assert.equal(runtimeGlobal.figma, undefined);
   assert.equal(runtimeGlobal.FigmaHarnessPlugin, undefined);
-  const first = createHarness();
-  const second = createHarness();
+  // The starter app, so the test does not depend on which app is active.
+  const first = createHarness(STARTER);
+  const second = createHarness(STARTER);
   assert.notEqual(first.pages, second.pages);
   assert.notEqual(first.store, second.store);
   const [name, original] = first.runtime.COLORS[0];
   const replacement = original === '#123456' ? '#654321' : '#123456';
-  const overridden = createHarness({ colorOverrides: { [name]: replacement } });
+  const overridden = createHarness({ ...STARTER, colorOverrides: { [name]: replacement } });
   assert.equal(overridden.runtime.COLORS.find((token) => token[0] === name)?.[1], replacement);
   assert.equal(first.runtime.COLORS.find((token) => token[0] === name)?.[1], original);
-  assert.throws(() => createHarness({ colorOverrides: { 'not/a/token': '#123456' } }), /unknown color override/);
+  assert.throws(() => createHarness({ ...STARTER, colorOverrides: { 'not/a/token': '#123456' } }), /unknown color override/);
 });
 
 test('component signatures ignore allocation order and prototype destination ids', async () => {

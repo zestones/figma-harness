@@ -21,16 +21,17 @@ Allowed, in any app under `apps/`, when required by the page brief:
 - `src/stress-cases.ts`
 - `src/fixtures/**`
 - `tests/**`
-- the regenerated `plugin/code.js`
+- the regenerated `plugin/code.js`, and the `app` entry of `figma-harness.config.json`, to choose which app it holds
 
 Everything else is outside the default scope. In particular, these paths are protected:
 
 - `packages/**`: the contract, the engine, the harness and the guards
 - `design-systems/**`, including their sheets and audit policy
+- `templates/**`, the design system and app templates new packages are copied from
 - `plugin/**` except the regenerated bundle
 - an app's `src/index.ts` (its definition) and `src/signatures.ts` (the components a baseline protects)
-- `docs/adr/**`, `docs/ia/**`, the root configuration and the lockfile
-- `plugin/baselines/*.json`
+- `docs/adr/**`, `docs/ia/**`, the lockfile, and the root configuration apart from the `app` entry above; `pnpm guard:authoring` fails if the config stops naming the plugin package
+- every app's `baselines/*.json`
 
 The audit contract is protected because it can relax an audit: reviewed radius exceptions, focus-stroke exemptions, and the representative signature boundaries come from the design system's audit policy, the app's signatures and the plugin's document contract. Stress cases only add coverage, so page authors own them.
 
@@ -60,7 +61,7 @@ An internal mode, guard name, acronym, issue number, hash, or authorization phra
 
 ## Baseline rule
 
-`plugin/baselines/design.json` and `plugin/baselines/components.json` are acceptance records. A failing signature means either the output changed or the refactor is incorrect. An agent must report the delta and may generate review material, but must not self-approve the new hash. Baseline mutation requires an explicit `BASELINE_ACCEPTANCE` task after visual review. Before requesting that task, the agent must apply the human-decision rule above and report the candidate delta, the protected output it represents, and the concrete review evidence needed.
+An app's `baselines/design.json` and `baselines/components.json` are acceptance records for the document that app and its design system produce. Templates, and an app built with a substituted design system, have no baselines: they are audited, not reviewed. A failing signature means either the output changed or the refactor is incorrect. An agent must report the delta and may generate review material, but must not self-approve the new hash. Baseline mutation requires an explicit `BASELINE_ACCEPTANCE` task after visual review. Before requesting that task, the agent must apply the human-decision rule above and report the candidate delta, the protected output it represents, and the concrete review evidence needed.
 
 ## Definition of done
 

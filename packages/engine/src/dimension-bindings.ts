@@ -12,6 +12,20 @@ export interface DimensionReference {
 
 export type DimensionValue = number | DimensionReference;
 
+const SIZE_FIELDS: readonly DimensionField[] = Object.freeze(['width', 'height']);
+const SPACE_FIELDS: readonly DimensionField[] = Object.freeze(['itemSpacing', 'counterAxisSpacing',
+  'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft']);
+const RADIUS_FIELDS: readonly DimensionField[] = Object.freeze(['cornerRadius']);
+
+/** A reference to a size variable. Its Figma scopes decide which properties it may own. */
+export function dimensionReference(variable: string, value: number, scopes: readonly string[]): DimensionReference {
+  const fields: DimensionField[] = [];
+  if (scopes.includes('WIDTH_HEIGHT')) fields.push(...SIZE_FIELDS);
+  if (scopes.includes('GAP')) fields.push(...SPACE_FIELDS);
+  if (scopes.includes('CORNER_RADIUS')) fields.push(...RADIUS_FIELDS);
+  return Object.freeze({ variable, value, fields: Object.freeze(fields) });
+}
+
 export function dimensionValue(value: DimensionValue): number {
   return typeof value === 'number' ? value : value.value;
 }

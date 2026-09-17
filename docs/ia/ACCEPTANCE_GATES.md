@@ -28,7 +28,9 @@ pnpm build
 pnpm verify
 ```
 
-`verify` checks the static guards, the bundle, the generated Primer tokens and Octicons against their pinned packages, lint, TypeScript, the inspection fonts, unit tests, the harness rules, contrast, rendered-tree accessibility, theme policy, the stable-document signature, and representative component signatures.
+`verify` checks the static guards, the bundle, generated design-system files against their sources (Primer's tokens and Octicons), lint, TypeScript and unit tests once. It then checks the inspection fonts, the harness rules, contrast, rendered-tree accessibility, theme policy, the stable-document signature and the representative component signatures once per app, and once more for the app template on each design system that is not a template (`pnpm each <check>`).
+
+Checks that read a composition run on the active app, the one `figma-harness.config.json` names. For one command, `FIGMA_HARNESS_APP=apps/<app>` selects another app and `FIGMA_HARNESS_DESIGN_SYSTEM=design-systems/<name>` builds it with another design system. `plugin/code.js` always holds the active app: `pnpm use <app>` switches it.
 
 ### Bounded execution on a Linux workstation
 
@@ -38,6 +40,7 @@ The full gate builds the document many times. On a memory-constrained Linux desk
 pnpm isolated preflight
 pnpm isolated audit
 pnpm isolated test plugin/tests/plugin-workflow.test.ts
+pnpm isolated each audit:a11y
 ```
 
 The runner requires a systemd user manager and cgroup v2. It caps the process group at 1 GiB with no swap, constrains worker pools, reports memory and task peaks, and refuses to fall back to unbounded execution. Test runs require explicit file selectors. A failure inside the runner is a failure; do not raise the limits or retry outside it.
@@ -56,6 +59,8 @@ pnpm install --frozen-lockfile
 pnpm smoke:figma:preflight
 ```
 
+The expected evidence below is written for Relay, the app the repository ships active. For another app, check the flows its brief describes and the fonts its design system names.
+
 | Check | Expected evidence |
 | --- | --- |
 | Build | The plugin finishes without a font or API error and reports zero layout issues |
@@ -66,12 +71,13 @@ pnpm smoke:figma:preflight
 | Typography | Noto Sans Regular, Medium and SemiBold, and Noto Sans Mono Regular, show no missing-font warning or substitution |
 | Idempotence | Running **Rebuild everything** a second time replaces owned content without adding a page or duplicating a top-level frame |
 
-The full-build prototype-link total is computed from native readback after every `setReactionsAsync()` call has completed, and is stored on the generated Screens page. Fast refresh preserves that total while writing and reading back only the actions owned by the replaced screen. A missing, extra, redirected, or rejected reaction in either scope is a build error; a partial count is never presented as a complete rebuild. The total counts every navigation action individually. Readback also compares the transition type, the duration and the exact cubic-bezier with Primer's transition.
+The full-build prototype-link total is computed from native readback after every `setReactionsAsync()` call has completed, and is stored on the generated Screens page. Fast refresh preserves that total while writing and reading back only the actions owned by the replaced screen. A missing, extra, redirected, or rejected reaction in either scope is a build error; a partial count is never presented as a complete rebuild. The total counts every navigation action individually. Readback also compares the transition type, the duration and the exact cubic-bezier with the design system's transition.
 
 Record the Figma version, operating system, date, both complete-build times, the fast-refresh time, the final plugin status text, and pass or fail for every check in the review handoff. A local PNG is inspection evidence, not a substitute for this gate.
 
 ## Interpreting signatures
 
+- Each app keeps its own baselines in `apps/<app>/baselines/`. Templates, and an app built with a substituted design system, have none: `design:check` says so and passes.
 - The document signature protects Screens, Design system, shared variables and styles, the plugin UI and manifest, and the existence and order of all three workspace pages. Design lab contents are excluded from parity but remain inside the structural and rendered-tree accessibility audits.
 - Structural maintenance must retain both accepted signatures exactly.
 - Intentional visual work may produce a candidate delta, but a failing signature remains a failed gate until a human reviews the output.
@@ -84,7 +90,7 @@ pnpm --silent design:signature
 pnpm --silent design:components
 ```
 
-After a human approves the reviewed output, the acceptance task writes exactly that output to `plugin/baselines/design.json` and `plugin/baselines/components.json`, and nothing else.
+After a human approves the reviewed output, the acceptance task writes exactly that output to the app's `baselines/design.json` and `baselines/components.json`, and nothing else.
 
 ## Handoff evidence
 

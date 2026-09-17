@@ -1,6 +1,6 @@
 # Design-system change workflow
 
-A design-system change is a separate task because it changes the vocabulary every future page can use. Its write scope is the design system's package (`design-systems/<name>/`), the lockfile and workspace catalog for dependency updates, app fixtures and tests, and the regenerated bundle. Replacing the design system altogether is described in [`docs/design-systems.md`](../design-systems.md).
+A design-system change is a separate task because it changes the vocabulary every future page can use. Its write scope is the design system's package (`design-systems/<name>/`), the lockfile and workspace catalog for dependency updates, app fixtures and tests, and the regenerated bundle. Creating a design system, or moving an app to another one, is described in [`docs/design-systems.md`](../design-systems.md).
 
 ## Required sequence
 
@@ -13,6 +13,8 @@ A design-system change is a separate task because it changes the vocabulary ever
 7. Run the `DESIGN_SYSTEM_CHANGE` scope guard and all acceptance gates.
 8. If the generated document changes, present the signature and render delta for review. Baseline acceptance remains a separate, explicit step.
 
+Every design system exports `starter`, the vocabulary the app template is written in, from its `src/index.ts`. `pnpm verify` builds the app template with every design system except the design system template's own copies (`pnpm each`), so a component change that breaks it fails there.
+
 Do not combine a design-system change and the page that motivated it into one opaque diff. Keeping them separately reviewable makes the new contract, and its consumers, visible.
 
 ## Primer tokens and colour changes
@@ -24,6 +26,6 @@ Primer's tokens and icons are generated. List a new one in `design-systems/prime
 - keep neutral tokens inside the `THEME_AUDIT` chroma and hue policy, and keep the surface ladder and ink ramp in order;
 - let the generator record which roles share a Primer source (`COLOR_SHARING_DECISIONS`); an exact shared value without a common source fails;
 - paint each token only where its Figma scopes allow, or add a reviewed entry to `COLOR_SCOPE_EXCEPTIONS`;
-- regenerate with `pnpm tokens:generate`, rebuild, run `pnpm cvd:generate`, then rebuild again.
+- regenerate with `pnpm generate`, rebuild, run `pnpm cvd:generate design-systems/primer`, then rebuild again.
 
 A waiver belongs in `CATEGORICAL_AUDIT.waivers` or on a `SURFACE_CONTRAST_AUDIT` control, with its reason, and in [Primer's ADR 0002](../../design-systems/primer/docs/adr/0002-colour-roles.md). It is a reviewed decision that stays visible in every report, not a way to silence a failing audit.

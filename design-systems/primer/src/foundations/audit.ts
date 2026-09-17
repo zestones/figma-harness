@@ -51,6 +51,9 @@ export interface NeutralLadder {
 
 export const SPACING_SCALE: readonly number[] = Object.freeze([...SPACING]);
 
+/** Octicons are drawn on these square grids. */
+export const ICON_SIZES: readonly number[] = Object.freeze([12, 16, 24]);
+
 export const RADIUS_SCALE: readonly number[] = Object.freeze([0, ...Object.values(RADII)]);
 
 /* The families whose emphasis colours tell states apart. open, closed and
@@ -328,6 +331,7 @@ export const DESIGN_SYSTEM_AUDIT = Object.freeze({
   contrastPairs: CONTRAST_PAIRS,
   cvd: CVD_TABLE,
   focus: FOCUS,
+  iconSizes: ICON_SIZES,
   pageGround: 'bgColor/default' satisfies ColorToken,
   radiusScale: RADIUS_SCALE,
   spacingScale: SPACING_SCALE,

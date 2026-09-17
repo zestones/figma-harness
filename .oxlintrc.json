@@ -13,7 +13,8 @@
     "**/node_modules/**",
     "plugin/code.js",
     "renders/**",
-    "design-systems/*/src/**/*.generated.ts"
+    "design-systems/*/src/**/*.generated.ts",
+    "templates/*/src/**/*.generated.ts"
   ],
   "rules": {
     "eslint/no-duplicate-imports": "error",
@@ -28,6 +29,7 @@
         "packages/engine/src/**/*.ts",
         "design-systems/*/src/**/*.ts",
         "apps/*/src/**/*.ts",
+        "templates/*/src/**/*.ts",
         "plugin/src/**/*.ts"
       ],
       "env": {

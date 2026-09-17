@@ -1,0 +1,21 @@
+{
+  "name": "@figma-harness/coffer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Coffer, an app built with @figma-harness/carrara",
+  "type": "module",
+  "figmaHarness": {
+    "role": "app"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@figma-harness/carrara": "workspace:*",
+    "@figma-harness/contract": "workspace:*"
+  },
+  "devDependencies": {
+    "@figma-harness/guards": "workspace:*",
+    "@figma-harness/harness": "workspace:*"
+  }
+}

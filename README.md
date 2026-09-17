@@ -30,11 +30,11 @@ flowchart LR
 1. **Pick a task.** `AGENTS.md` sends the agent to [`docs/ia/`](docs/ia/README.md), where it chooses a mode: build a page (the default), change the design system, explore an idea, or maintain the repository. Recording an approved design needs a person's explicit go-ahead.
 2. **Write code, not layers.** A page composes the design system's components with deterministic sample data. It cannot reach into the design system's internals, hard-code a colour, or add a component.
 3. **Check and fix.** `pnpm verify` runs everything offline, so the agent can loop until the report is clean.
-4. **Hand over.** The agent reports what it changed and which frames to open. A person reviews them in Figma and approves the new fingerprint (the design signature) stored in `plugin/baselines/`. A change with no visual effect, such as a refactor, keeps the same fingerprint and needs no review.
+4. **Hand over.** The agent reports what it changed and which frames to open. A person reviews them in Figma and approves the new fingerprint (the design signature), stored with the app in `apps/<app>/baselines/`. A change with no visual effect, such as a refactor, keeps the same fingerprint and needs no review.
 
 ## How code becomes a Figma file
 
-`pnpm build` bundles the design system and the app into one plugin file, `plugin/code.js`. The same bundle runs in two places: in Figma Desktop, where the plugin builds the pages, and in the harness, where `pnpm verify` runs it against a simulated Figma.
+`pnpm build` bundles the active app, the one `figma-harness.config.json` names, and its design system into one plugin file, `plugin/code.js`. The same bundle runs in two places: in Figma Desktop, where the plugin builds the pages, and in the harness, where `pnpm verify` runs it against a simulated Figma.
 
 In Figma, the plugin owns three pages: `01 · Screens` with the app's screens wired as a clickable prototype, `02 · Design system` with one documentation sheet per topic, and `03 · Design lab`, a scratch page for experiments. It can rebuild everything or refresh a single screen in place. Components are drawn as ordinary Figma layers with auto layout, not as Figma component instances.
 
@@ -56,14 +56,26 @@ Components also follow the W3C [Authoring Practices Guide (APG) patterns](https:
 
 When a design system knowingly departs from a rule, the exception is written down with its reason and printed in every report. Nothing is silently waived.
 
-## The example in this repository
+## The examples in this repository
 
-A complete example ships with the repository so the whole loop works out of the box. Both parts can be replaced:
+Two complete examples ship with the repository, so the whole loop works out of the box. Neither is special to the harness, and both can be replaced:
 
-- **Design system: [Primer](https://primer.style)**, GitHub's open-source design system, in its light theme (`design-systems/primer/`). Its colours, sizes, type, shadows, motion and icons are generated from Primer's npm packages, 33 of its components are redrawn, and everything is documented on 21 sheets.
-- **App: Relay**, a made-up release-management tool (`apps/relay/`). Seven screens (an overview, the list of releases, one release, the same release with its confirmation dialog open, and a settings form at rest, with an unsaved change and after a failed save) are linked into a clickable prototype.
+- **Relay, built with Primer** (the active app). [Primer](https://primer.style) is GitHub's open-source design system, here in its light theme (`design-systems/primer/`): its colours, sizes, type, shadows, motion and icons are generated from Primer's npm packages, 33 of its components are redrawn, and everything is documented on 21 sheets. Relay (`apps/relay/`) is a made-up release-management tool: seven screens (an overview, the list of releases, one release, the same release with its confirmation dialog open, and a settings form at rest, with an unsaved change and after a failed save) linked into a clickable prototype.
+- **Coffer, built with Carrara.** Carrara (`design-systems/carrara/`) is a design system for finance software: a light workspace with a dark sidebar, Inter, Heroicons, 29 component families and nine sheets. Coffer (`apps/coffer/`) is a made-up payments dashboard: six screens (an overview of the month, the list of payments, one payment, the same payment with its refund dialog open and once refunded, and a customer) linked into a clickable prototype. Both were created with the commands below, then made their own.
 
-To plug in your own design system, see [Design systems](docs/design-systems.md). To add screens, see the [page workflow](docs/ia/PAGE_WORKFLOW.md).
+`templates/` holds what those commands copy: a small design system and a three-screen app that pass every check.
+
+## Start your own
+
+```bash
+pnpm create:design-system <name>                        # copy the design system template to design-systems/<name>/
+pnpm create:app <name> --design-system <design system>  # copy the app template to apps/<name>/
+pnpm use <name>                                         # make it the app the plugin builds
+pnpm use                                                # list the apps and show the active one
+pnpm each audit                                         # run a check on every app
+```
+
+A new design system starts as a working copy of the template: change its colours, type and components, and the checks say what to fix. A new app starts with three screens that work with any design system, then grows with its own design system's components. Switching the active app rebuilds `plugin/code.js` and never touches another app. See [Design systems](docs/design-systems.md) and the [page workflow](docs/ia/PAGE_WORKFLOW.md).
 
 ## Get started
 
@@ -71,7 +83,7 @@ You need Node.js 22.12 or newer, pnpm (`corepack enable` installs the pinned ver
 
 ```bash
 pnpm install
-pnpm build    # bundle the plugin into plugin/code.js
+pnpm build    # bundle the active app into plugin/code.js
 pnpm verify   # run every check, offline
 ```
 
@@ -82,7 +94,7 @@ To see the result, in Figma Desktop:
 1. Open a new file you can throw away: the plugin replaces the content of the three pages it uses, which also fit a free Starter file.
 2. Choose **Plugins → Development → Import plugin from manifest** and select `plugin/manifest.json`.
 3. Run **Figma Harness** and choose **Rebuild everything**.
-4. Present `01 · Overview` to click through the prototype.
+4. Present the first screen (`01 · Overview` for Relay) to click through the prototype.
 
 The plugin has no network access.
 
@@ -92,8 +104,8 @@ The plugin has no network access.
 flowchart LR
     subgraph agents["Written by agents"]
         direction TB
-        app["App<br/>apps/relay/"]
-        ds["Design system<br/>design-systems/primer/"]
+        app["Apps<br/>apps/"]
+        ds["Design systems<br/>design-systems/"]
         app -- "uses" --> ds
     end
     subgraph infra["Maintained by people"]
@@ -107,30 +119,33 @@ flowchart LR
     agents -- "kept in bounds by" --> guards
 ```
 
-| Folder                   | What it is                                                                           | Who changes it                 |
-|--------------------------|--------------------------------------------------------------------------------------|--------------------------------|
-| `apps/relay/`            | The example app: screens, prototype links, sample data                               | Agents, in page tasks          |
-| `design-systems/primer/` | The example design system: tokens, icons, components, documentation sheets           | Agents, in design-system tasks |
-| `plugin/`                | The Figma plugin. `src/composition.ts` picks the design system and the app it builds | Maintainers                    |
-| `packages/harness/`      | The checks: simulated Figma, audits, renders, fingerprints                           | Maintainers                    |
-| `packages/guards/`       | Repository rules: which code may import which, and which files a task may change     | Maintainers                    |
-| `packages/engine/`       | Shared code that creates Figma layers, variables and prototype links                 | Maintainers                    |
-| `packages/contract/`     | The TypeScript interfaces that connect everything above                              | Maintainers                    |
-| `docs/`                  | Instructions for agents, acceptance rules and design decisions                       | Maintainers                    |
+| Folder                   | What it is                                                                                        | Who changes it                 |
+|--------------------------|---------------------------------------------------------------------------------------------------|--------------------------------|
+| `apps/<app>/`            | An app: screens, prototype links, sample data, approved fingerprints. Examples: `relay`, `coffer` | Agents, in page tasks          |
+| `design-systems/<name>/` | A design system: tokens, components, documentation sheets. Examples: `primer`, `carrara`          | Agents, in design-system tasks |
+| `templates/`             | The design system and app templates that `pnpm create:*` copies                                   | Maintainers                    |
+| `plugin/`                | The Figma plugin. It builds the app `figma-harness.config.json` names                             | Maintainers                    |
+| `packages/harness/`      | The checks: simulated Figma, audits, renders, fingerprints                                        | Maintainers                    |
+| `packages/guards/`       | Repository rules: which code may import which, and which files a task may change                  | Maintainers                    |
+| `packages/cli/`          | The `create:*`, `use` and `each` commands                                                         | Maintainers                    |
+| `packages/engine/`       | Shared code that creates Figma layers, variables and prototype links                              | Maintainers                    |
+| `packages/contract/`     | The TypeScript interfaces that connect everything above                                           | Maintainers                    |
+| `docs/`                  | Instructions for agents, acceptance rules and design decisions                                    | Maintainers                    |
 
 ## Documentation
 
-| Topic                                               | Document                                                             |
-|-----------------------------------------------------|----------------------------------------------------------------------|
-| Task modes, allowed files and workflows for agents  | [`docs/ia/README.md`](docs/ia/README.md)                             |
-| What must pass, and how a design change is approved | [`docs/ia/ACCEPTANCE_GATES.md`](docs/ia/ACCEPTANCE_GATES.md)         |
-| Using your own design system                        | [`docs/design-systems.md`](docs/design-systems.md)                   |
-| The Primer example: updating it, adding components  | [`design-systems/primer/README.md`](design-systems/primer/README.md) |
-| Every command and every check                       | [`packages/harness/README.md`](packages/harness/README.md)           |
-| The plugin and the pages it builds                  | [`plugin/README.md`](plugin/README.md)                               |
-| Design decisions                                    | [`docs/adr/README.md`](docs/adr/README.md)                           |
-| Contributing                                        | [`CONTRIBUTING.md`](CONTRIBUTING.md)                                 |
+| Topic                                               | Document                                                               |
+|-----------------------------------------------------|------------------------------------------------------------------------|
+| Task modes, allowed files and workflows for agents  | [`docs/ia/README.md`](docs/ia/README.md)                               |
+| What must pass, and how a design change is approved | [`docs/ia/ACCEPTANCE_GATES.md`](docs/ia/ACCEPTANCE_GATES.md)           |
+| Using your own design system                        | [`docs/design-systems.md`](docs/design-systems.md)                     |
+| The Primer example: updating it, adding components  | [`design-systems/primer/README.md`](design-systems/primer/README.md)   |
+| The second example: Carrara and Coffer              | [`design-systems/carrara/README.md`](design-systems/carrara/README.md) |
+| Every command and every check                       | [`packages/harness/README.md`](packages/harness/README.md)             |
+| The plugin and the pages it builds                  | [`plugin/README.md`](plugin/README.md)                                 |
+| Design decisions                                    | [`docs/adr/README.md`](docs/adr/README.md)                             |
+| Contributing                                        | [`CONTRIBUTING.md`](CONTRIBUTING.md)                                   |
 
 ## License
 
-[MIT](LICENSE). The Primer example copies material from GitHub's Primer Primitives and Octicons under their own MIT licences, listed in [its notice](design-systems/primer/NOTICE.md). Relay is fictional, and this project is not affiliated with or endorsed by GitHub.
+[MIT](LICENSE). The Primer example copies material from GitHub's Primer Primitives and Octicons under their own MIT licences, listed in [its notice](design-systems/primer/NOTICE.md). The Carrara example copies icon paths from Heroicons under the MIT licence, listed in [its notice](design-systems/carrara/NOTICE.md). Relay and Coffer are fictional, and this project is not affiliated with or endorsed by GitHub or Tailwind Labs.

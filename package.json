@@ -10,10 +10,12 @@
   "scripts": {
     "build": "tsx packages/harness/src/bundle/build.ts",
     "build:check": "tsx packages/harness/src/bundle/build.ts --check",
-    "tokens:generate": "tsx design-systems/primer/generators/tokens/tokens.ts",
-    "tokens:check": "tsx design-systems/primer/generators/tokens/tokens.ts --check",
-    "icons:generate": "tsx design-systems/primer/generators/icons/icons.ts",
-    "icons:check": "tsx design-systems/primer/generators/icons/icons.ts --check",
+    "generate": "pnpm -r --if-present run generate",
+    "check:generated": "pnpm -r --if-present run check:generated",
+    "create:app": "tsx packages/cli/src/create-app.ts",
+    "create:design-system": "tsx packages/cli/src/create-design-system.ts",
+    "use": "tsx packages/cli/src/use.ts",
+    "each": "tsx packages/cli/src/each.ts",
     "cvd:generate": "tsx packages/harness/src/accessibility/cvd-table.ts",
     "audit": "tsx packages/harness/src/runtime/harness.ts",
     "audit:contrast": "tsx packages/harness/src/accessibility/contrast.ts",
@@ -34,11 +36,11 @@
     "guard:flows": "tsx packages/guards/src/check-flow-contract.ts",
     "guard:hygiene": "tsx packages/guards/src/check-tooling-hygiene.ts",
     "guard:scope": "tsx packages/guards/src/check-change-scope.ts",
-    "lint": "oxlint --deny-warnings --report-unused-disable-directives packages design-systems apps plugin",
+    "lint": "oxlint --deny-warnings --report-unused-disable-directives packages design-systems apps templates plugin",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx --test --test-concurrency=1 packages/*/tests/*.test.ts design-systems/*/tests/*.test.ts apps/*/tests/*.test.ts plugin/tests/*.test.ts",
+    "test": "tsx --test --test-concurrency=1 packages/*/tests/*.test.ts design-systems/*/tests/*.test.ts apps/*/tests/*.test.ts templates/*/tests/*.test.ts plugin/tests/*.test.ts",
     "smoke:figma:preflight": "pnpm run build:check && pnpm run render:fonts:check && pnpm run design:check && pnpm run design:components:check",
-    "verify": "pnpm run guard && pnpm run build:check && pnpm run tokens:check && pnpm run icons:check && pnpm run lint && pnpm run typecheck && pnpm run render:fonts:check && pnpm test && pnpm run audit && pnpm run audit:contrast && pnpm run audit:a11y && pnpm run audit:theme && pnpm run design:check && pnpm run design:components:check"
+    "verify": "pnpm run guard && pnpm run build:check && pnpm run check:generated && pnpm run lint && pnpm run typecheck && pnpm test && pnpm run each render:fonts:check && pnpm run each audit && pnpm run each audit:contrast && pnpm run each audit:a11y && pnpm run each audit:theme && pnpm run each design:check && pnpm run each design:components:check"
   },
   "devDependencies": {
     "@figma/plugin-typings": "catalog:",

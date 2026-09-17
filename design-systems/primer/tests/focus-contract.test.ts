@@ -7,6 +7,10 @@ import { paintTokenName } from '@figma-harness/harness/color/core/token-values.t
 import type { MockNode } from '@figma-harness/harness/runtime/figma-mock/types.ts';
 import type { AddFinding, ContractTreeHarness } from '@figma-harness/harness/accessibility/a11y/tree/types.ts';
 
+/* Primer's sheets, built with the app template so the test does not depend on
+   which app is active. */
+const PRIMER = { app: 'templates/app', designSystem: 'design-systems/primer' } as const;
+
 const buildFocusSpecimens = async (harness: Harness) => {
   await harness.runtime.loadFonts();
   await harness.runtime.ensureTokens();
@@ -25,7 +29,7 @@ const failures = async (harness: Harness): Promise<string[]> => {
 };
 
 test('generated focus outlines sit where Primer places them, and keep each control intact', async () => {
-  const harness = createHarness();
+  const harness = createHarness(PRIMER);
   const pages = await buildFocusSpecimens(harness);
   assert.deepEqual(await failures(harness), []);
   const focus = harness.runtime.CONTRACT.designSystem.focus;
@@ -77,7 +81,7 @@ test('generated focus outlines sit where Primer places them, and keep each contr
 });
 
 test('focus audits reject moved, clipped, hidden, recoloured, missing and unmeasurable outlines', async () => {
-  const harness = createHarness();
+  const harness = createHarness(PRIMER);
   const pages = await buildFocusSpecimens(harness);
   const forms = pages[1].children.find(node => node.name === 'C3 · Form controls');
   const control = forms?.findOne(node => node.name === 'checkbox' && node.getPluginData('spec.focus') === 'visible');

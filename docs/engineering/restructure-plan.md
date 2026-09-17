@@ -1,6 +1,6 @@
 # Restructuring plan: a pnpm workspace with one owner per concern
 
-- Status: implemented in the working tree on 2026-09-17, not committed (see [Results](#results))
+- Status: implemented on 2026-09-17 and committed as `05625cf`. The composition and the baseline location were changed afterwards by the [templates plan](./templates-plan.md) and [ADR 0004](../adr/0004-selectable-apps-and-templates.md); this record keeps the state at that commit.
 - Scope: `STRUCTURAL_MAINTENANCE`. The generated Figma document must not change.
 
 ## Review findings
@@ -123,7 +123,7 @@ Implemented on 2026-09-17, in the working tree only.
 | `pnpm build:check`, `tokens:check`, `icons:check` | current (86 bundled modules); the regenerated modules differ only in their header comment |
 | `pnpm lint`, `pnpm typecheck`, `pnpm render:fonts:check` | clean |
 | Tests | 21 files, 61 tests, all passing through `pnpm isolated test …` |
-| `pnpm audit` | clean |
+| `pnpm run audit` | clean |
 | `pnpm audit:contrast`, `audit:a11y`, `audit:theme` | 82 pairs with 0 failing; 0 failing with the 6 reviewed warnings; every theme rule holds |
 | Signatures | `design:signature` and `design:components` print exactly the pre-move candidates: `designSha256` `766f49a5…`, 5,049 protected nodes, the same seven component hashes |
 | `design:check`, `design:components:check` | fail as expected, because no baseline has been accepted yet; the message now names `plugin/baselines/design.json` |

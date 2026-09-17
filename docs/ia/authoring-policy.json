@@ -2,8 +2,8 @@
   "version": 1,
   "defaultMode": "PAGE_AUTHORING",
   "baselinePaths": [
-    "plugin/baselines/design.json",
-    "plugin/baselines/components.json"
+    "apps/*/baselines/design.json",
+    "apps/*/baselines/components.json"
   ],
   "ignoredPaths": [
     "renders/**"
@@ -19,6 +19,7 @@
         "apps/*/src/screens.ts",
         "apps/*/src/stress-cases.ts",
         "apps/*/tests/**",
+        "figma-harness.config.json",
         "plugin/code.js"
       ]
     },
@@ -29,6 +30,7 @@
         "apps/*/tests/**",
         "design-systems/**",
         "docs/design-systems.md",
+        "figma-harness.config.json",
         "plugin/code.js",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml"
@@ -40,13 +42,14 @@
         "apps/*/src/fixtures/**",
         "apps/*/src/lab/**",
         "apps/*/tests/**",
+        "figma-harness.config.json",
         "plugin/code.js"
       ]
     },
     "STRUCTURAL_MAINTENANCE": {
       "allowed": [
-        ".github/**",
         ".gitattributes",
+        ".github/**",
         ".gitignore",
         ".oxlintrc.json",
         "AGENTS.md",
@@ -63,13 +66,14 @@
         "plugin/**",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
+        "templates/**",
         "tsconfig.json"
       ]
     },
     "BASELINE_ACCEPTANCE": {
       "allowed": [
-        "plugin/baselines/design.json",
-        "plugin/baselines/components.json"
+        "apps/*/baselines/design.json",
+        "apps/*/baselines/components.json"
       ],
       "requiresExplicitHumanApproval": true
     }

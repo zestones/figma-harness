@@ -2,16 +2,14 @@
   "name": "@figma-harness/plugin",
   "version": "0.0.0",
   "private": true,
-  "description": "The Figma development plugin: composes one design system and one app into three owned pages",
+  "description": "The Figma development plugin: builds the active app and its design system into three owned pages",
   "type": "module",
   "figmaHarness": {
     "role": "plugin"
   },
   "dependencies": {
     "@figma-harness/contract": "workspace:*",
-    "@figma-harness/engine": "workspace:*",
-    "@figma-harness/primer": "workspace:*",
-    "@figma-harness/relay": "workspace:*"
+    "@figma-harness/engine": "workspace:*"
   },
   "devDependencies": {
     "@figma-harness/harness": "workspace:*"

@@ -9,17 +9,19 @@ contract ◄── engine ◄── design system ◄── app
     ▲           ▲            ▲             ▲
     └───────────┴──── plugin ┴─────────────┘
 
-contract ◄── harness ◄── guards        (tooling: reads the bundle, never the product)
+contract ◄── harness ◄── guards, cli   (tooling: reads the bundle, never the product)
 ```
 
 | Role | Packages | May import at runtime |
 | --- | --- | --- |
 | `contract` | `packages/contract` | nothing |
 | `engine` | `packages/engine` | `contract` |
-| `design-system` | `design-systems/*` | `engine`, `contract` |
-| `app` | `apps/*` | a design system's main entry, `contract` |
-| `plugin` | `plugin` | `contract`, `engine`, a design system's `system` entry, an app's entry |
-| `tooling` | `packages/harness`, `packages/guards` | `contract`, other tooling |
+| `design-system` | `design-systems/*`, `templates/design-system` | `engine`, `contract` |
+| `app` | `apps/*`, `templates/app` | the main entry of its one design system, `contract` |
+| `plugin` | `plugin` | `contract`, `engine`, the active app's entry and its design system's `system` entry |
+| `tooling` | `packages/harness`, `packages/guards`, `packages/cli` | `contract`, other tooling |
+
+The plugin depends on no app and no design system. It imports `@figma-harness/active-app` and `@figma-harness/active-design-system`, which the build resolves to the app `figma-harness.config.json` names (or `FIGMA_HARNESS_APP`) and to that app's design system; the guard checks those imports as imports of the files they resolve to. A package marked `"template": true` in `figmaHarness` is a template that `pnpm create:*` copies; only the app template may depend on the design system template.
 
 Across packages, code imports a package name and only what that package's `exports` publishes; a relative import never leaves its package. A product package may import only the workspace packages listed in its `dependencies`, and never tooling, npm packages or Node built-ins.
 
@@ -47,7 +49,8 @@ Foundations, primitives, components, patterns, the facade and the system may use
 - `packages/engine/` owns Figma mechanics: node factory, resources, token installation, fonts, layout arithmetic and lint, dimension bindings, prototype reaction writes, page lifecycle, frame reuse.
 - `design-systems/<name>/` owns its tokens and generators, semantics, primitives, components, patterns, its sheets and page chrome, its audit policy, and its decisions.
 - `apps/<name>/` owns deterministic scenarios, screens, flows, stress cases, representative components, Design lab experiments, and briefs.
-- `plugin/` owns the composition, UI commands, the three owned pages, targeted screen refresh, prototype wiring, the document audit contract, and the harness API.
+- `templates/` owns the design system template and the app template; `packages/cli/` owns the commands that copy them, select the active app, and run a check on every app.
+- `plugin/` owns the composition of the active app, UI commands, the three owned pages, targeted screen refresh, prototype wiring, the document audit contract, and the harness API.
 - `packages/harness/` owns the offline runtime, audits, rendering, signatures and the bounded runner; `packages/guards/` owns the repository rules.
 
 ## Offline harness edge

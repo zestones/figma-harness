@@ -1,0 +1,16 @@
+{
+  "name": "@figma-harness/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Workspace commands: create a design system or an app from the templates, choose the active app, and run a check on every app",
+  "type": "commonjs",
+  "figmaHarness": {
+    "role": "tooling"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@figma-harness/harness": "workspace:*"
+  }
+}

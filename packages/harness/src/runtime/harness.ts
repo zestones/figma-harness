@@ -16,20 +16,38 @@ import {
   solveLayout,
 } from './layout.ts';
 import { measure } from './text-metrics.ts';
-import type { AuditRuntime } from './rules/types.ts';
-import type { StressRuntime } from './stress.ts';
-import { BUNDLE_GLOBAL_NAME, bundleFile } from '../bundle/bundle.ts';
-import { repositoryRoot } from '../core/workspace.ts';
+import type { AuditRuntime, LayoutIssue } from './rules/types.ts';
+import { escapesOf } from './escapes.ts';
+import type { StressInspector, StressRuntime } from './stress.ts';
+import {
+  BUNDLE_GLOBAL_NAME,
+  bundleFile,
+  bundlePlugin,
+  bundledComposition,
+} from '../bundle/bundle.ts';
+import { useDesignSystemFonts } from '../core/bundled-fonts.ts';
+import {
+  activeComposition,
+  configuredComposition,
+  repositoryRoot,
+  type Composition,
+} from '../core/workspace.ts';
 
 const fs = require('node:fs') as typeof import('node:fs');
 const vm = require('node:vm') as typeof import('node:vm');
 const { runAudit } = require('./audit.ts') as typeof import('./audit.ts');
 const { stress: runStress } = require('./stress.ts') as {
-  stress(runtime: StressRuntime): Promise<number>;
+  stress(runtime: StressRuntime, inspect?: StressInspector): Promise<number>;
 };
 
 
 export interface HarnessOptions {
+  /** The app to build, by directory or package name. Defaults to
+   *  FIGMA_HARNESS_APP, then to the app figma-harness.config.json names. */
+  app?: string;
+  /** Build the app with this design system instead of the one it depends on.
+   *  Defaults to FIGMA_HARNESS_DESIGN_SYSTEM. */
+  designSystem?: string;
   /** Bundle text to evaluate instead of the committed code.js. */
   code?: string;
   colorOverrides?: Record<string, string>;
@@ -67,6 +85,8 @@ export interface HarnessRuntime extends AuditRuntime, StressRuntime {
 
 export interface Harness {
   buildAll(): Promise<MockNode[]>;
+  /** The app and the design system this harness builds. */
+  readonly composition: Composition;
   created: MockCreationRecord[];
   dispatchUiMessage(message: unknown): Promise<unknown>;
   emit(event: string): void;
@@ -90,7 +110,35 @@ export interface Harness {
   vars: MockVariable[];
 }
 
+/* The committed code.js is built for the configured composition, and checked
+   to hold it. Any other composition is bundled in memory, with the same
+   reachability rule pnpm build applies. */
+const bundleText = function (composition: Composition): string {
+  const label = composition.app.relative + ' with ' + composition.designSystem.relative;
+  const configured = configuredComposition();
+  if (composition.substituted || composition.app.dir !== configured.app.dir) {
+    const bundle = bundlePlugin({
+      app: composition.app.relative,
+      designSystem: composition.designSystem.relative,
+    });
+    if (bundle.unreachable.length) {
+      throw new Error(label + ': source module(s) unreachable from the plugin entry: ' + bundle.unreachable.join(', '));
+    }
+    return bundle.code.toString('utf8');
+  }
+  const code = fs.readFileSync(bundleFile(), 'utf8');
+  const held = bundledComposition(code);
+  if (!held || held.app !== composition.app.relative || held.designSystem !== composition.designSystem.relative) {
+    throw new Error('plugin/code.js holds ' + (held ? held.app + ' with ' + held.designSystem : 'an unknown build')
+      + ', not the configured ' + label + '; run pnpm build');
+  }
+  return code;
+};
+
 export function createHarness(options: HarnessOptions = {}): Harness {
+  const composition = activeComposition(repositoryRoot(), options.app, options.designSystem);
+  // Text is measured with the fonts of the design system this harness builds.
+  useDesignSystemFonts(composition.designSystem.dir);
   const mock = createFigmaMock({ pageCap: options.pageCap });
   const {
     figma,
@@ -105,7 +153,7 @@ export function createHarness(options: HarnessOptions = {}): Harness {
 
   const context = vm.createContext({ figma, __html__: '<html></html>', console });
   vm.runInContext(
-    options.code ?? fs.readFileSync(bundleFile(), 'utf8'),
+    options.code ?? bundleText(composition),
     context,
     { filename: 'code.js' },
   );
@@ -133,7 +181,20 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     }
   }
 
-  const stress = (): Promise<number> => runStress(runtime);
+  // A stress result is laid out and checked like a page: the layout lint, and nothing outside its frame.
+  const inspectStress: StressInspector = (result) => {
+    if (!result || typeof result !== 'object' || !('children' in result)) return [];
+    const node = result as MockNode;
+    layout(node);
+    const issues = [
+      ...runtime.lint(node, { tolerance: 1.5 }).issues.map((issue: LayoutIssue) => issue.kind + ' at ' + issue.node + ': ' + issue.detail),
+      ...escapesOf(node, solveLayout),
+    ];
+    // Attached before the run removes it, so the orphan rule counts only what the case left behind.
+    if (!node.parent && pages.length) pages[0].appendChild(node);
+    return issues;
+  };
+  const stress = (): Promise<number> => runStress(runtime, inspectStress);
 
   async function buildAll(): Promise<MockNode[]> {
     await runtime.loadFonts();
@@ -148,6 +209,7 @@ export function createHarness(options: HarnessOptions = {}): Harness {
   return {
     runtime,
     buildAll,
+    composition,
     dispatchUiMessage,
     emit,
     pages,

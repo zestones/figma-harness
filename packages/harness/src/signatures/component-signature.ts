@@ -4,7 +4,7 @@
 'use strict';
 
 import type { HarnessContract } from '@figma-harness/contract';
-import { pluginLayout, repositoryRoot } from '../core/workspace.ts';
+import { appLayout, repositoryRoot } from '../core/workspace.ts';
 import type { MockNode } from '../runtime/figma-mock/types.ts';
 import {
   missingBaselineMessage,
@@ -38,7 +38,8 @@ interface ComponentBaseline {
   schemaVersion: 2;
 }
 
-const BASELINE_FILE = pluginLayout().baselines.components;
+const APP = appLayout();
+const BASELINE_FILE = APP.baselines.components;
 const CHECK = process.argv.includes('--check');
 
 function exactlyOne<T>(nodes: readonly T[], description: string): T {
@@ -90,13 +91,20 @@ async function createSignature(): Promise<ComponentBaseline> {
   return { schemaVersion: 2, components };
 }
 
+// Every selector is resolved, even for a build that has no baseline to compare with.
 createSignature().then((signature) => {
   if (!CHECK) {
     console.log(JSON.stringify(signature, null, 2));
     return;
   }
+  const count = Object.keys(signature.components).length;
+  if (APP.unreviewed) {
+    console.log('components: ' + count + (count === 1 ? ' representative boundary' : ' representative boundaries')
+      + ' found; not compared: ' + APP.unreviewed);
+    return;
+  }
   if (!fs.existsSync(BASELINE_FILE)) {
-    console.error(missingBaselineMessage(path.relative(repositoryRoot(), BASELINE_FILE), 'design:components'));
+    console.error(missingBaselineMessage(path.relative(repositoryRoot(), BASELINE_FILE), 'design:components', APP.package.relative));
     process.exitCode = 1;
     return;
   }
@@ -108,7 +116,6 @@ createSignature().then((signature) => {
     process.exitCode = 1;
     return;
   }
-  const count = Object.keys(signature.components).length;
   console.log('components: unchanged (' + count + ' representative boundaries)');
 }).catch((error: unknown) => {
   console.error(error instanceof Error ? error.stack || error.message : error);

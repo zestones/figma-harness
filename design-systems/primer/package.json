@@ -11,6 +11,10 @@
     ".": "./src/index.ts",
     "./system": "./src/system.ts"
   },
+  "scripts": {
+    "generate": "tsx generators/tokens/tokens.ts && tsx generators/icons/icons.ts",
+    "check:generated": "tsx generators/tokens/tokens.ts --check && tsx generators/icons/icons.ts --check"
+  },
   "dependencies": {
     "@figma-harness/contract": "workspace:*",
     "@figma-harness/engine": "workspace:*"

@@ -1,6 +1,6 @@
 # ADR 0001: One package per concern, and a swappable design system
 
-- Status: Accepted
+- Status: Accepted. Its composition point is superseded by [ADR 0004](./0004-selectable-apps-and-templates.md): the config names the app, and the plugin imports it through build aliases.
 
 ## Context
 
