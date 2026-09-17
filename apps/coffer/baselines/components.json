@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "components": {
+    "kpis": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "01 · Overview",
+        "node": "kpis"
+      },
+      "type": "FRAME",
+      "name": "kpis",
+      "nodeCount": 50,
+      "designSha256": "3845f066ea1d96bac162999adf9620a2aaadc29705ded3c566c466e46511a3fd"
+    },
+    "payments-list": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "02 · Payments",
+        "node": "payments-list"
+      },
+      "type": "FRAME",
+      "name": "payments-list",
+      "nodeCount": 344,
+      "designSha256": "7dae1b7723534bf1fdf1de1b1d9dedf10f4a1aff980aefaef92c2828f50e36e6"
+    },
+    "payment-breakdown": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "03 · Payment",
+        "node": "payment-breakdown"
+      },
+      "type": "FRAME",
+      "name": "payment-breakdown",
+      "nodeCount": 21,
+      "designSha256": "631a083ef1161a88ee474bf0fe27a01bac03f11745578a37f17c8af33b44380e"
+    },
+    "refund-dialog": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "04 · Payment — refund",
+        "node": "dialog/refund"
+      },
+      "type": "FRAME",
+      "name": "dialog/refund",
+      "nodeCount": 38,
+      "designSha256": "60d906994b2f104c18cd0c202d419ee0efd7c12e4163a9f444b5982b95e3af0a"
+    },
+    "button-matrix": {
+      "selector": {
+        "page": "02 · Design system",
+        "topLevel": "C1 · Actions and inputs",
+        "node": "row/primary"
+      },
+      "type": "FRAME",
+      "name": "row/primary",
+      "nodeCount": 18,
+      "designSha256": "f2717ee00663f9cdab04e923784618e10a8dd2cfcb945876920a397b439da6a3"
+    }
+  }
+}

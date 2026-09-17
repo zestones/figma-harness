@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "components": {
+    "app-header": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "01 · Overview",
+        "node": "App header"
+      },
+      "type": "FRAME",
+      "name": "App header",
+      "nodeCount": 46,
+      "designSha256": "bac59dc85e06815156e5a7bc1e03154736ca34bda42128dab65edb6426385980"
+    },
+    "environments": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "01 · Overview",
+        "node": "Environments"
+      },
+      "type": "FRAME",
+      "name": "Environments",
+      "nodeCount": 44,
+      "designSha256": "1d81e801770b270c1d7bd1ad3d3d50fe77cac6c11be0f19de181e1daeb648a81"
+    },
+    "release-list": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "02 · Releases",
+        "node": "Release list"
+      },
+      "type": "FRAME",
+      "name": "Release list",
+      "nodeCount": 164,
+      "designSha256": "d8dd12fee510a33c432491a94394244853947b5cdfed8f332c096d30812c6ae0"
+    },
+    "release-checks": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "03 · Release",
+        "node": "Checks"
+      },
+      "type": "FRAME",
+      "name": "Checks",
+      "nodeCount": 59,
+      "designSha256": "cd46efb5a52b67be065ae63b0590d9b617dc608c0d859cd98ff6054849f0f206"
+    },
+    "promote-dialog": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "04 · Release — promote",
+        "node": "promote-dialog"
+      },
+      "type": "FRAME",
+      "name": "promote-dialog",
+      "nodeCount": 29,
+      "designSha256": "da4fae768b51181d5c9b21847c4d0ead92a9a62d35acd619f3699c41cb02c1bd"
+    },
+    "settings-form": {
+      "selector": {
+        "page": "01 · Screens",
+        "topLevel": "05 · Settings",
+        "node": "Settings form"
+      },
+      "type": "FRAME",
+      "name": "Settings form",
+      "nodeCount": 55,
+      "designSha256": "defdd2f817828d3edff7335a5c55d5f06758b19a34b2e22b69193e92f702a6be"
+    },
+    "button-matrix": {
+      "selector": {
+        "page": "02 · Design system",
+        "topLevel": "C1 · Buttons",
+        "node": "row/primary"
+      },
+      "type": "FRAME",
+      "name": "row/primary",
+      "nodeCount": 27,
+      "designSha256": "013308701174889ef474f75f74038dcfeefe7fabca5982de74c0416660b48db4"
+    }
+  }
+}

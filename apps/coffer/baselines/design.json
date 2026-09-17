@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 2,
+  "designSha256": "1d5fe4e6281450bf66fe0dc43d706679f6cefb596e1620bd10cf30af9f400319",
+  "protectedNodeCount": 4036,
+  "protectedPageCount": 2,
+  "protectedTopLevelNodeCount": 33,
+  "protectedPages": [
+    {
+      "name": "01 · Screens",
+      "children": 18
+    },
+    {
+      "name": "02 · Design system",
+      "children": 15
+    }
+  ],
+  "workspacePages": [
+    "01 · Screens",
+    "02 · Design system",
+    "03 · Design lab"
+  ],
+  "uiSha256": "966370b9a4c85e21fff985d4f3957041dd03df052a8ec7e29b489b2f9f89f8a1",
+  "manifestSha256": "26cd5d1765d4a9b9038f5843e734e6a2988c271538280e5b32fa4778d3a3d2e5"
+}
