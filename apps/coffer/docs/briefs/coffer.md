@@ -45,4 +45,4 @@ All of it comes from `@figma-harness/carrara`.
 
 - Focused tests: `apps/coffer/tests/coffer.test.ts` and `apps/coffer/tests/flows.test.ts`.
 - Stress cases: the payments table, a customer's payments, stats, the area chart and the page header across their widths; six screens at five artboard sizes; long names, large amounts, no payments, no activity, an unknown payment and an unknown customer.
-- Audits and signatures: `pnpm each audit` and the other checks in `pnpm verify`. The design and component signatures are recorded in `apps/coffer/baselines/` once a maintainer has reviewed the output in Figma.
+- Audits and signatures: `pnpm each audit` and the other checks in `pnpm verify`. The design and component signatures in `apps/coffer/baselines/` were accepted after a maintainer reviewed the output in Figma.

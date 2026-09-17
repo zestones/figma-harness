@@ -1,6 +1,6 @@
 # Templates plan: a selectable app, and starting points for new ones
 
-- Status: implemented in the working tree on 2026-09-17, reviewed by an independent agent, not committed (see [Results](#results))
+- Status: implemented on 2026-09-17, reviewed by independent agents, and committed as `71cb04e`. Relay's and Coffer's baselines were accepted afterwards (see [Acceptance](#acceptance)).
 - Scope: `STRUCTURAL_MAINTENANCE`, plus two new example packages. Relay's generated document must not change; its candidate hash moved only because the simulated layout became more faithful (see [Results](#results)).
 - Decision: [ADR 0004](../adr/0004-selectable-apps-and-templates.md)
 
@@ -38,11 +38,15 @@ Verified on 2026-09-17, every heavy step through `pnpm isolated`, after the revi
 | `build:check`, `check:generated`, `lint`, `typecheck`                                  | clean; `code.js` is built for the configured app                                                                                                                                                                                                                                                                                             |
 | Tests                                                                                  | 30 files, 83 tests, all passing                                                                                                                                                                                                                                                                                                              |
 | `pnpm each render:fonts:check`, `audit`, `audit:contrast`, `audit:theme`, `audit:a11y` | all five compositions pass, every stress result laid out cleanly: Relay on Primer, Coffer on Carrara, and the app template on its own design system, on Primer and on Carrara. Primer's reviewed warnings remain (6 with Relay, 4 with the app template); the other compositions have none                                                   |
-| `pnpm each design:check`, `design:components:check`                                    | templates build their signatures and pass; Relay and Coffer fail because no baseline has been accepted yet                                                                                                                                                                                                                                   |
+| `pnpm each design:check`, `design:components:check`                                    | templates build their signatures and pass; Relay and Coffer failed because no baseline had been accepted yet, until the [acceptance](#acceptance)                                                                                                                                                                                            |
 | Relay's candidate signatures                                                           | the seven component hashes are identical to the ones printed before the restructuring. The document hash moved from `766f49a5…` to `bca1d28a…`, with the same 5,049 protected nodes, when the simulated layout learned to grow wrapping rows: the Octicons sheet's caption row had been placed over the icon grid, where Figma never drew it |
-| Coffer's candidate signatures                                                          | `designSha256` `1d5fe4e6…`, 4,036 protected nodes, five component hashes; saved under `renders/candidates/` for review, not accepted                                                                                                                                                                                                         |
+| Coffer's candidate signatures                                                          | `designSha256` `1d5fe4e6…`, 4,036 protected nodes, five component hashes; saved under `renders/candidates/` for review, then accepted                                                                                                                                                                                                        |
 | `pnpm guard:scope --mode=STRUCTURAL_MAINTENANCE --base=HEAD`                           | clean                                                                                                                                                                                                                                                                                                                                        |
 | Leak scan                                                                              | only the known false positive: a number inside an Octicon path                                                                                                                                                                                                                                                                               |
+
+### Acceptance
+
+On 2026-09-17 the maintainer reviewed Relay and Coffer in Figma Desktop and approved the candidate signatures above. A separate `BASELINE_ACCEPTANCE` task wrote the output of `design:signature` and `design:components`, unchanged, to `apps/relay/baselines/` and `apps/coffer/baselines/`. `pnpm each design:check` and `design:components:check` then passed for all five compositions, and the scope check saw only those four files. Until then, CI had failed at `design:check` on every push since the verification gate was added.
 
 ### Found while building the examples
 
@@ -103,13 +107,12 @@ A second review covered Carrara, Coffer and the harness changes above. It found 
 
 ### Review guide
 
-- Untracked: the folders `templates/`, `packages/cli/`, `design-systems/carrara/`, `apps/coffer/` and `plugin/types/`, and the files `docs/adr/0004-selectable-apps-and-templates.md`, this plan, `packages/contract/src/starter.ts`, `design-systems/primer/src/patterns/starter.ts`, `packages/harness/src/core/{package-manager,woff}.ts`, `packages/harness/src/runtime/escapes.ts`, `packages/harness/tests/woff.test.ts` and `apps/relay/tests/{screen-reuse,shells}.test.ts`. Everything else is an unstaged modification.
+- The whole change is commit `71cb04e`; `git show --stat 71cb04e` lists its files, and the baselines follow in their own commit.
 - Suggested order: `figma-harness.config.json` and `packages/harness/src/core/workspace.ts`; `packages/harness/src/bundle/bundle.ts`, `build.ts` and `plugin/src/composition.ts`; `packages/contract/src/starter.ts`; `templates/`; `packages/cli/src/scaffold.ts`; the guards; `packages/harness/src/runtime/layout.ts`, `stress.ts`, `escapes.ts` and `rules/orphans.ts`, and `packages/engine/src/layout-lint.ts`; then Carrara and Coffer as a user of all of it; then the docs.
 - To try it: `pnpm use`, `pnpm use coffer`, run the plugin in Figma, then `pnpm use relay` to come back.
 
 ### Not done
 
-- Relay and Coffer still await a review in Figma Desktop before their baselines can be accepted, so `pnpm verify` fails at `design:check` until then.
 - Moving an existing app to another design system has no command: it changes the app's pages, so it stays a reviewed change.
 - Two Figma behaviours are not documented and cannot be checked offline: whether `resize()` keeps a size variable, and how a space-between row treats a bound gap. Carrara avoids depending on either.
 - The simulated layout aligns `BASELINE` rows to the top, which only changes how amount cells look in previews.

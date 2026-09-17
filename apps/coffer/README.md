@@ -14,6 +14,7 @@
 | `src/signatures.ts` | Representative layers the baseline protects | no |
 | `src/index.ts` | `app`, the definition the plugin builds | no |
 | `tests/` | Formatting, fixtures, and the prototype's matrix and motion | yes |
+| `baselines/` | The approved design and component signatures, reviewed in Figma | `BASELINE_ACCEPTANCE` only |
 
 Pages import visuals only from `@figma-harness/carrara` and data only from `src/fixtures/index.ts`. When the vocabulary is missing something, the page change stops and a `DESIGN_SYSTEM_CHANGE` starts (see [`AGENTS.md`](../../AGENTS.md)).
 
@@ -25,4 +26,4 @@ FIGMA_HARNESS_APP=apps/coffer pnpm isolated render:svg all renders/coffer
 pnpm use coffer
 ```
 
-Coffer has no approved design yet, so `pnpm design:check` reports a missing baseline until a person has reviewed it in Figma (see the [acceptance gates](../../docs/ia/ACCEPTANCE_GATES.md)).
+Coffer's approved design is recorded in `baselines/`. A change to its screens or to Carrara makes `pnpm design:check` fail until a person has reviewed the new output in Figma and approved a new baseline (see the [acceptance gates](../../docs/ia/ACCEPTANCE_GATES.md)).

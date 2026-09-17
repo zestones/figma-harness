@@ -6,7 +6,7 @@ Write one reviewed brief per page, flow or exploration, starting from the templa
 
 | Brief | State |
 | --- | --- |
-| [`coffer.md`](coffer.md) | The six screens of the example, awaiting review in Figma |
+| [`coffer.md`](coffer.md) | The six screens of the example, reviewed in Figma; baselines accepted on 2026-09-17 |
 
 ## Active explorations
 
