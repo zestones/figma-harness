@@ -1,0 +1,209 @@
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--figma-color-bg, #fff);
+    color: var(--figma-color-text, #18181b);
+    font: 12px/1.45 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  main { padding: 16px; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+  .mark {
+    display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 34px;
+    border-radius: 9px; background: #4f46e5; color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  }
+  h1 { margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; }
+  .eyebrow {
+    margin: 1px 0 0; color: var(--figma-color-text-secondary, #71717a);
+    font-size: 10.5px;
+  }
+  .context {
+    margin-bottom: 14px; padding: 11px 12px;
+    border: 1px solid var(--figma-color-border, #dedede); border-radius: 9px;
+    background: var(--figma-color-bg-secondary, #f5f5f5);
+  }
+  .context-head { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #8b8b8b; }
+  .context.available .dot { background: #1a7f4b; box-shadow: 0 0 0 3px rgba(26,127,75,.12); }
+  .context-title { min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .context-detail { color: var(--figma-color-text-secondary, #71717a); font-size: 10.5px; }
+  .section-label {
+    margin: 15px 0 7px; color: var(--figma-color-text-secondary, #71717a);
+    font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  }
+  button {
+    display: flex; align-items: center; width: 100%; min-height: 48px;
+    margin: 0 0 7px; padding: 9px 11px;
+    border: 1px solid var(--figma-color-border, #dedede); border-radius: 8px;
+    background: var(--figma-color-bg, #fff); color: inherit;
+    font: inherit; text-align: left; cursor: pointer;
+  }
+  button:hover:not(:disabled) { background: var(--figma-color-bg-hover, #f3f3f3); }
+  button:focus-visible { outline: 2px solid var(--figma-color-border-brand, #2f6feb); outline-offset: 2px; }
+  button:disabled { opacity: .42; cursor: default; }
+  button.primary { border-color: #4f46e5; background: #4f46e5; color: #fff; }
+  button.primary:hover:not(:disabled) { border-color: #4338ca; background: #4338ca; }
+  button.primary .description { color: #fff; }
+  .number {
+    width: 26px; flex: 0 0 26px; color: var(--figma-color-text-secondary, #5a6373);
+    font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .primary .number { color: #fff; }
+  .copy { min-width: 0; flex: 1; }
+  .title { display: block; font-weight: 550; }
+  .description {
+    display: block; margin-top: 1px; color: var(--figma-color-text-secondary, #71717a);
+    font-size: 10.5px;
+  }
+  .arrow { margin-left: 8px; color: var(--figma-color-text-tertiary, #9a9a9a); font-size: 14px; }
+  .primary .arrow { color: rgba(255,255,255,.8); }
+  .status {
+    margin-top: 13px; padding: 10px 11px; border-radius: 8px;
+    background: var(--figma-color-bg-secondary, #f5f5f5); font-size: 10.5px;
+  }
+  .status-row { display: flex; align-items: flex-start; gap: 8px; }
+  #status-text { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+  .status-icon { width: 9px; height: 9px; margin-top: 3px; flex: 0 0 9px; border-radius: 50%; background: #8b8b8b; }
+  .status.busy { background: #fbf3e0; color: #7a4d00; }
+  .status.busy .status-icon {
+    border: 1.5px solid rgba(122,77,0,.25); border-top-color: currentColor;
+    background: transparent; animation: spin .7s linear infinite;
+  }
+  .status.done { background: #e6f4ec; color: #146b3e; }
+  .status.done .status-icon { background: #1a7f4b; }
+  .status.warn { background: #fbf3e0; color: #7a4d00; }
+  .status.warn .status-icon { background: #9a6200; }
+  .status.error { background: #fcebeb; color: #a8262b; }
+  .status.error .status-icon { background: #c93036; }
+  .elapsed { margin-left: auto; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; }
+  .foot { margin: 10px 2px 0; color: var(--figma-color-text-secondary, #5a6373); font-size: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .status.busy .status-icon { animation: none; } }
+</style>
+
+<main>
+  <header class="header">
+    <div class="mark" aria-hidden="true">FH</div>
+    <div>
+      <h1>Figma Harness</h1>
+      <p class="eyebrow">Deterministic builder · local verification</p>
+    </div>
+  </header>
+
+  <section class="context" id="context" aria-labelledby="context-title">
+    <div class="context-head"><span class="dot" aria-hidden="true"></span><span class="context-title" id="context-title">No screen selected</span></div>
+    <div class="context-detail" id="context-detail">Open 01 · Screens and select a generated screen.</div>
+  </section>
+
+  <button class="primary" id="refresh" data-task="refresh" disabled>
+    <span class="number">FAST</span>
+    <span class="copy"><span class="title">Refresh selected screen</span><span class="description">Keeps its Figma frame ID and rewires the prototype</span></span>
+    <span class="arrow" aria-hidden="true">↻</span>
+  </button>
+
+  <div class="section-label">Page actions</div>
+  <button data-task="screens">
+    <span class="number">01</span>
+    <span class="copy"><span class="title">Rebuild Screens &amp; prototype</span><span class="description">Replaces page 01 · reuses repeated subtrees</span></span>
+    <span class="arrow" aria-hidden="true">›</span>
+  </button>
+  <button data-task="system">
+    <span class="number">02</span>
+    <span class="copy"><span class="title">Rebuild Design system</span><span class="description">Replaces foundations, components, and patterns</span></span>
+    <span class="arrow" aria-hidden="true">›</span>
+  </button>
+  <button data-task="states">
+    <span class="number">03</span>
+    <span class="copy"><span class="title">Clean Design lab</span><span class="description">Clear temporary explorations after their decisions are documented</span></span>
+    <span class="arrow" aria-hidden="true">›</span>
+  </button>
+
+  <div class="section-label">Workspace</div>
+  <button data-task="all">
+    <span class="number">ALL</span>
+    <span class="copy"><span class="title">Rebuild everything</span><span class="description">Replaces all three plugin-owned pages</span></span>
+    <span class="arrow" aria-hidden="true">›</span>
+  </button>
+
+  <section class="status" id="status" role="status" aria-live="polite">
+    <div class="status-row"><span class="status-icon" aria-hidden="true"></span><span id="status-text">Ready.</span><span class="elapsed" id="elapsed"></span></div>
+  </section>
+  <p class="foot">A page rebuild replaces only the page named by the action. Use the fast action while iterating on one screen.</p>
+</main>
+
+<script>
+  var statusEl = document.getElementById('status');
+  var statusTextEl = document.getElementById('status-text');
+  var elapsedEl = document.getElementById('elapsed');
+  var contextEl = document.getElementById('context');
+  var contextTitleEl = document.getElementById('context-title');
+  var contextDetailEl = document.getElementById('context-detail');
+  var refreshEl = document.getElementById('refresh');
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('button[data-task]'));
+  var busy = false;
+  var canRefresh = false;
+  var startedAt = 0;
+  var timer = 0;
+
+  function seconds(milliseconds) { return (milliseconds / 1000).toFixed(1) + 's'; }
+  function updateButtons() {
+    buttons.forEach(function (button) {
+      button.disabled = busy || (button === refreshEl && !canRefresh);
+    });
+  }
+  function stopTimer(finalMilliseconds) {
+    if (timer) window.clearInterval(timer);
+    timer = 0;
+    elapsedEl.textContent = typeof finalMilliseconds === 'number'
+      ? seconds(finalMilliseconds)
+      : '';
+  }
+  function startTimer() {
+    if (timer) return;
+    startedAt = Date.now();
+    elapsedEl.textContent = '0.0s';
+    timer = window.setInterval(function () {
+      elapsedEl.textContent = seconds(Date.now() - startedAt);
+    }, 100);
+  }
+
+  buttons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      busy = true;
+      updateButtons();
+      startTimer();
+      statusEl.className = 'status busy';
+      statusTextEl.textContent = 'Starting…';
+      parent.postMessage({ pluginMessage: { type: 'run', task: button.dataset.task } }, '*');
+    });
+  });
+
+  onmessage = function (event) {
+    var message = event.data && event.data.pluginMessage;
+    if (!message) return;
+    if (message.type === 'context') {
+      canRefresh = message.canRefresh === true;
+      contextEl.className = 'context' + (canRefresh ? ' available' : '');
+      contextTitleEl.textContent = message.title || 'No generated screen selected';
+      contextDetailEl.textContent = message.reason || '';
+      updateButtons();
+      return;
+    }
+    if (message.type !== 'status') return;
+    statusEl.className = 'status ' + message.status;
+    statusTextEl.textContent = message.text;
+    if (message.status === 'busy') {
+      busy = true;
+      startTimer();
+    } else {
+      busy = false;
+      stopTimer(message.elapsedMs);
+    }
+    updateButtons();
+  };
+
+  parent.postMessage({ pluginMessage: { type: 'ready' } }, '*');
+</script>
