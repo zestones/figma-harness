@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "defaultMode": "PAGE_AUTHORING",
+  "baselinePaths": [
+    "plugin/tools/runtime/design-baseline.json",
+    "plugin/tools/runtime/component-baseline.json"
+  ],
+  "ignoredPaths": [
+    "plugin/node_modules/**",
+    "plugin/renders/**"
+  ],
+  "modes": {
+    "PAGE_AUTHORING": {
+      "allowed": [
+        "docs/briefs/**",
+        "plugin/src/designs/pages/**",
+        "plugin/src/designs/flows/**",
+        "plugin/src/designs/catalog.ts",
+        "plugin/src/designs/app.ts",
+        "plugin/src/designs/screens.ts",
+        "plugin/src/fixtures/**",
+        "plugin/tools/tests/**",
+        "plugin/code.js"
+      ]
+    },
+    "DESIGN_SYSTEM_CHANGE": {
+      "allowed": [
+        "THIRD_PARTY_NOTICES.md",
+        "docs/adr/**",
+        "docs/briefs/**",
+        "docs/design-system.md",
+        "plugin/package.json",
+        "plugin/package-lock.json",
+        "plugin/src/kit/**",
+        "plugin/src/designs/sheets/**",
+        "plugin/src/fixtures/**",
+        "plugin/tools/tests/**",
+        "plugin/tools/accessibility/**",
+        "plugin/tools/color/**",
+        "plugin/tools/icons/**",
+        "plugin/tools/tokens/**",
+        "plugin/code.js"
+      ]
+    },
+    "DESIGN_EXPLORATION": {
+      "allowed": [
+        "docs/briefs/**",
+        "plugin/src/designs/experiments/**",
+        "plugin/src/designs/catalog.ts",
+        "plugin/src/fixtures/**",
+        "plugin/tools/tests/**",
+        "plugin/code.js"
+      ]
+    },
+    "STRUCTURAL_MAINTENANCE": {
+      "allowed": [
+        ".github/**",
+        ".gitignore",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "CONTRIBUTING.md",
+        "LICENSE",
+        "README.md",
+        "docs/**",
+        "plugin/**"
+      ]
+    },
+    "BASELINE_ACCEPTANCE": {
+      "allowed": [
+        "plugin/tools/runtime/design-baseline.json",
+        "plugin/tools/runtime/component-baseline.json"
+      ],
+      "requiresExplicitHumanApproval": true
+    }
+  }
+}
