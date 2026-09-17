@@ -1,0 +1,24 @@
+packages:
+  - packages/*
+  - design-systems/*
+  - apps/*
+  - plugin
+
+# One version of each shared tool, referenced as "catalog:" by the packages.
+catalog:
+  '@figma/plugin-typings': 1.134.0
+  '@types/node': 22.20.1
+  esbuild: 0.28.2
+  oxc-parser: 0.146.0
+  oxlint: 1.79.0
+  sharp: 0.35.3
+  tsx: 4.23.12
+  typescript: 7.0.2
+
+# esbuild's install script only checks its platform binary.
+allowBuilds:
+  esbuild: true
+
+# The pinned Octicons release is younger than pnpm's minimum release age.
+minimumReleaseAgeExclude:
+  - '@primer/octicons@19.37.0'

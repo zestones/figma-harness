@@ -4,45 +4,43 @@
 
 An agent has two deliberately different relationships with this workspace:
 
-1. It **uses** the protected engine and visual kit through stable public facades.
-2. It **authors** designs, flows, fixtures, and their registrations in the write zone selected by the task mode.
+1. It **uses** the protected infrastructure and the design system through their package entry points.
+2. It **authors** screens, flows, fixtures, and their registrations in the write zone selected by the task mode.
 
-The file boundary is part of the design-system contract, not merely a naming convention. `npm run guard:architecture` rejects imports that bypass it.
+The package boundary is part of the contract, not merely a naming convention. `pnpm guard:architecture` rejects imports that bypass it.
 
 ## Default write zone: `PAGE_AUTHORING`
 
-Allowed when required by the page brief:
+Allowed, in any app under `apps/`, when required by the page brief:
 
 - `docs/briefs/**`
-- `plugin/src/designs/pages/**`, including the screen registry (`state-matrix.ts`) and the stress cases (`stress-cases.ts`)
-- `plugin/src/designs/flows/**`
-- `plugin/src/designs/catalog.ts`
-- `plugin/src/designs/app.ts` (product name, navigation, signed-in user)
-- `plugin/src/designs/screens.ts` (start screen and catalog version)
-- `plugin/src/fixtures/**`
-- focused files under `plugin/tools/tests/**`
-- regenerated `plugin/code.js`
+- `src/pages/**`
+- `src/flows/**`, the prototype transitions and their product rules
+- `src/app.ts` (product name, navigation, signed-in person)
+- `src/screens.ts` (screen groups, start screen, catalog version)
+- `src/stress-cases.ts`
+- `src/fixtures/**`
+- `tests/**`
+- the regenerated `plugin/code.js`
 
 Everything else is outside the default scope. In particular, these paths are protected:
 
-- `plugin/src/engine/**`
-- `plugin/src/kit/**`, including `kit/public.ts`
-- `plugin/src/plugin/**`
-- `plugin/src/designs/sheets/**` and `plugin/src/designs/experiments/**`
-- `plugin/src/designs/harness-contract.ts` and `plugin/src/designs/workspace.ts`
-- architecture, accessibility, colour, token, icon, rendering, and runtime tooling, and the pinned Primer packages
-- `docs/adr/**` and `docs/ia/**`
-- design and component baseline JSON files
+- `packages/**`: the contract, the engine, the harness and the guards
+- `design-systems/**`, including their sheets and audit policy
+- `plugin/**` except the regenerated bundle
+- an app's `src/index.ts` (its definition) and `src/signatures.ts` (the components a baseline protects)
+- `docs/adr/**`, `docs/ia/**`, the root configuration and the lockfile
+- `plugin/baselines/*.json`
 
-The audit contract is protected because it can relax an audit: reviewed radius exceptions, focus-stroke exemptions, and the representative signature boundaries live there. Stress cases only add coverage, so page authors own them.
+The audit contract is protected because it can relax an audit: reviewed radius exceptions, focus-stroke exemptions, and the representative signature boundaries come from the design system's audit policy, the app's signatures and the plugin's document contract. Stress cases only add coverage, so page authors own them.
 
 ## Escalation rule
 
-A page may compose exported primitives, components, and patterns. It may not:
+A page may compose the primitives, components, and patterns its design system exports. It may not:
 
 - reproduce a missing component locally;
 - introduce raw colours, type styles, spacing scales, or icon paths;
-- deep-import kit or engine internals;
+- import the engine, another package's internals, or the design system's `system` entry;
 - change the public facade as a side effect of page work;
 - loosen a guard, audit, type check, or signature to admit its output.
 
@@ -62,7 +60,7 @@ An internal mode, guard name, acronym, issue number, hash, or authorization phra
 
 ## Baseline rule
 
-`design-baseline.json` and `component-baseline.json` are acceptance records. A failing signature means either the output changed or the refactor is incorrect. An agent must report the delta and may generate review material, but must not self-approve the new hash. Baseline mutation requires an explicit `BASELINE_ACCEPTANCE` task after visual review. Before requesting that task, the agent must apply the human-decision rule above and report the candidate delta, the protected output it represents, and the concrete review evidence needed.
+`plugin/baselines/design.json` and `plugin/baselines/components.json` are acceptance records. A failing signature means either the output changed or the refactor is incorrect. An agent must report the delta and may generate review material, but must not self-approve the new hash. Baseline mutation requires an explicit `BASELINE_ACCEPTANCE` task after visual review. Before requesting that task, the agent must apply the human-decision rule above and report the candidate delta, the protected output it represents, and the concrete review evidence needed.
 
 ## Definition of done
 

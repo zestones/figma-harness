@@ -1,0 +1,25 @@
+{
+  "name": "@figma-harness/primer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GitHub Primer's light theme as a Figma design system: generated tokens and Octicons, components, and documentation sheets",
+  "type": "module",
+  "figmaHarness": {
+    "role": "design-system"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./system": "./src/system.ts"
+  },
+  "dependencies": {
+    "@figma-harness/contract": "workspace:*",
+    "@figma-harness/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@figma-harness/harness": "workspace:*",
+    "@fontsource/noto-sans": "5.3.0",
+    "@fontsource/noto-sans-mono": "5.3.0",
+    "@primer/octicons": "19.37.0",
+    "@primer/primitives": "11.10.0"
+  }
+}

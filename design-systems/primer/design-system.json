@@ -1,0 +1,13 @@
+{
+  "name": "Primer (light)",
+  "generated": {
+    "cvdTable": "src/foundations/cvd.generated.ts"
+  },
+  "fonts": {
+    "default": "Noto Sans",
+    "families": {
+      "Noto Sans": { "package": "@fontsource/noto-sans", "weights": [400, 500, 600] },
+      "Noto Sans Mono": { "package": "@fontsource/noto-sans-mono", "weights": [400, 500] }
+    }
+  }
+}

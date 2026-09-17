@@ -1,0 +1,5 @@
+{
+  "plugin": "plugin",
+  "designSystem": "design-systems/primer",
+  "renders": "renders"
+}

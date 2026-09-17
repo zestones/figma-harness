@@ -1,22 +1,22 @@
 # Acceptance gates
 
-Run commands from `plugin/`.
+Run commands from the repository root.
 
 ## Every task
 
 ```bash
-npm run guard
-npm run lint
-npm run typecheck
-npm test
+pnpm guard
+pnpm lint
+pnpm typecheck
+pnpm test
 ```
 
-`guard:architecture` validates dependency direction and the two public facades. `guard:authoring` validates the instruction and policy wiring. `guard:flows` validates the declarative screen and interaction matrix before the runtime harness independently compares it with the generated Figma reactions. `guard:hygiene` rejects unreachable tools, dependency cycles, duplicated function bodies, and tools that import product source.
+`guard:architecture` validates package roles and dependencies, layers, and package entry points. `guard:authoring` validates the instruction and policy wiring. `guard:flows` validates the declarative screen and interaction matrix before the runtime harness independently compares it with the generated Figma reactions. `guard:hygiene` rejects unreachable tools, dependency cycles, duplicated function bodies, and tools that import product source.
 
 The task-specific scope check is separate because CI cannot infer a branch's authoring mode:
 
 ```bash
-npm run guard:scope -- --mode=<MODE> --base=<git-ref>
+pnpm guard:scope --mode=<MODE> --base=<git-ref>
 ```
 
 ## Any source or document-output change
@@ -24,8 +24,8 @@ npm run guard:scope -- --mode=<MODE> --base=<git-ref>
 Run the complete gate:
 
 ```bash
-npm run build
-npm run verify
+pnpm build
+pnpm verify
 ```
 
 `verify` checks the static guards, the bundle, the generated Primer tokens and Octicons against their pinned packages, lint, TypeScript, the inspection fonts, unit tests, the harness rules, contrast, rendered-tree accessibility, theme policy, the stable-document signature, and representative component signatures.
@@ -35,9 +35,9 @@ npm run verify
 The full gate builds the document many times. On a memory-constrained Linux desktop, run each heavy step in a bounded transient systemd service instead:
 
 ```bash
-npm run isolated -- preflight
-npm run isolated -- audit
-npm run isolated -- test tools/tests/plugin-workflow.test.ts
+pnpm isolated preflight
+pnpm isolated audit
+pnpm isolated test plugin/tests/plugin-workflow.test.ts
 ```
 
 The runner requires a systemd user manager and cgroup v2. It caps the process group at 1 GiB with no swap, constrains worker pools, reports memory and task peaks, and refuses to fall back to unbounded execution. Test runs require explicit file selectors. A failure inside the runner is a failure; do not raise the limits or retry outside it.
@@ -49,11 +49,11 @@ The offline harness proves determinism and most layout invariants, but it cannot
 > [!CAUTION]
 > Use a disposable Figma file. The plugin replaces the contents of the three pages it owns.
 
-Run the native preflight, import `manifest.json` through **Plugins → Development → Import plugin from manifest**, open the plugin, then choose **Rebuild everything**.
+Run the native preflight, import `plugin/manifest.json` through **Plugins → Development → Import plugin from manifest**, open the plugin, then choose **Rebuild everything**.
 
 ```bash
-npm ci
-npm run smoke:figma:preflight
+pnpm install --frozen-lockfile
+pnpm smoke:figma:preflight
 ```
 
 | Check | Expected evidence |
@@ -80,11 +80,11 @@ Record the Figma version, operating system, date, both complete-build times, the
 To prepare a candidate for review, print it without writing anything:
 
 ```bash
-npm run --silent design:signature
-npm run --silent design:components
+pnpm --silent design:signature
+pnpm --silent design:components
 ```
 
-After a human approves the reviewed output, the acceptance task writes exactly that output to `tools/runtime/design-baseline.json` and `tools/runtime/component-baseline.json`, and nothing else.
+After a human approves the reviewed output, the acceptance task writes exactly that output to `plugin/baselines/design.json` and `plugin/baselines/components.json`, and nothing else.
 
 ## Handoff evidence
 

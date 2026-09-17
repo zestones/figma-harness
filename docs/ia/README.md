@@ -6,13 +6,13 @@ This directory is the operating manual for an agent that creates or maintains de
 
 | Mode | Use it for | Read next |
 | --- | --- | --- |
-| `PAGE_AUTHORING` (default) | A new page, screen, state, or prototype flow assembled from the current kit | `AUTHORING_CONTRACT.md`, `PAGE_WORKFLOW.md`, `ACCEPTANCE_GATES.md` |
+| `PAGE_AUTHORING` (default) | A new page, screen, state, or prototype flow assembled from the current design system | `AUTHORING_CONTRACT.md`, `PAGE_WORKFLOW.md`, `ACCEPTANCE_GATES.md` |
 | `DESIGN_SYSTEM_CHANGE` | A new or revised token, primitive, component, or reusable pattern | `AUTHORING_CONTRACT.md`, `ARCHITECTURE_BOUNDARIES.md`, `DESIGN_SYSTEM_WORKFLOW.md`, `ACCEPTANCE_GATES.md` |
-| `DESIGN_EXPLORATION` | A disposable visual direction in the design lab | `AUTHORING_CONTRACT.md`, `ARCHITECTURE_BOUNDARIES.md`, `ACCEPTANCE_GATES.md` |
+| `DESIGN_EXPLORATION` | A disposable visual direction in the Design lab | `AUTHORING_CONTRACT.md`, `ARCHITECTURE_BOUNDARIES.md`, `ACCEPTANCE_GATES.md` |
 | `STRUCTURAL_MAINTENANCE` | Refactoring folders, imports, build mechanics, documentation, or verification infrastructure without changing the document | `AUTHORING_CONTRACT.md`, `ARCHITECTURE_BOUNDARIES.md`, `ACCEPTANCE_GATES.md` |
 | `BASELINE_ACCEPTANCE` | Recording a visual signature already reviewed and explicitly approved by a human | `AUTHORING_CONTRACT.md`, `ACCEPTANCE_GATES.md` |
 
-When the request is ambiguous, use `PAGE_AUTHORING`. Changing mode requires an explicit task-level reason; discovering that a component is missing is not permission to edit the kit.
+When the request is ambiguous, use `PAGE_AUTHORING`. Changing mode requires an explicit task-level reason; discovering that a component is missing is not permission to edit the design system.
 
 ## Authoring and acceptance states
 
@@ -28,7 +28,7 @@ stateDiagram-v2
 
     [*] --> Classified
     Classified --> Work: mode and write zone selected
-    Work --> Gap: public kit is insufficient
+    Work --> Gap: design system is insufficient
     Gap --> Work: separate capability change completed
     Work --> Verification
     Verification --> Work: guard, test, audit, or parity failure
@@ -43,11 +43,12 @@ stateDiagram-v2
 ## Sources of truth
 
 - `authoring-policy.json` is the write-scope policy the guards read.
-- `plugin/src/kit/public.ts` is the only supported visual API for designs.
-- `plugin/src/fixtures/public.ts` is the only supported scenario API for designs.
-- `plugin/src/designs/pages/state-matrix.ts` registers every generated screen; `plugin/src/designs/catalog.ts` lays out the three owned pages.
-- `plugin/src/designs/harness-contract.ts` and `plugin/src/kit/foundations/audit.ts` declare what the offline audits measure.
-- `docs/adr/` records accepted cross-cutting design and interaction decisions.
-- `plugin/tools/runtime/*baseline.json` records reviewed generated output, never intent.
+- Each workspace package's `package.json` declares its role (`figmaHarness.role`); the guards derive the dependency rules from it.
+- The design system's package entry (`@figma-harness/primer`) is the only supported visual API for apps.
+- An app's `src/fixtures/index.ts` is its only supported scenario API, and its `src/screens.ts` registers every generated screen.
+- `plugin/src/composition.ts` names the design system and the app the plugin builds; `plugin/src/document/builders.ts` lays out the three owned pages.
+- The design system's `src/foundations/audit.ts` and the plugin's `src/document/contract.ts` declare what the offline audits measure, typed by `@figma-harness/contract`.
+- `docs/adr/` records repository decisions; a design system records its own under its `docs/adr/`.
+- `plugin/baselines/*.json` records reviewed generated output, never intent.
 
-Run `npm run guard` from `plugin/` to validate the static contract. Use `npm run guard:scope -- --mode=<MODE> --base=<git-ref>` to validate a task's changed-file scope. Before a release, complete the native-editor gate in [`ACCEPTANCE_GATES.md`](./ACCEPTANCE_GATES.md#native-figma-desktop-gate).
+Run `pnpm guard` from the repository root to validate the static contract. Use `pnpm guard:scope --mode=<MODE> --base=<git-ref>` to validate a task's changed-file scope. Before a release, complete the native-editor gate in [`ACCEPTANCE_GATES.md`](./ACCEPTANCE_GATES.md#native-figma-desktop-gate).

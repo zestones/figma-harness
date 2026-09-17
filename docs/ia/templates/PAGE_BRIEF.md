@@ -9,17 +9,17 @@
 
 ## Data and context
 
-- API-shaped inputs (fixtures):
+- API-shaped inputs (the app's `src/fixtures/`):
 - Filters, time range, and time-zone behavior:
 - Loading, empty, partial, error, and permission states:
 
 ## Screens and interaction
 
-- Screen keys and titles (`SCREEN_GROUPS`):
+- Screen keys and titles (`SCREEN_GROUPS` in the app's `src/screens.ts`):
 - Primary action:
 - Keyboard and focus path:
 - Prototype transitions and their motion (`enter`, `exit`, `stateChange`):
-- Navigation entry (`designs/app.ts`), if any:
+- Navigation entry (the app's `src/app.ts`), if any:
 
 ## Kit usage
 

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd "$(dirname "$0")"
-exec npm run build -- "$@"
+cd "$(dirname "$0")/.."
+exec pnpm build "$@"

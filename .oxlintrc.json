@@ -1,0 +1,81 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "plugins": [
+    "typescript",
+    "import",
+    "oxc"
+  ],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "plugin/code.js",
+    "renders/**",
+    "design-systems/*/src/**/*.generated.ts"
+  ],
+  "rules": {
+    "eslint/no-duplicate-imports": "error",
+    "eslint/no-unused-vars": "off",
+    "typescript/no-explicit-any": "off",
+    "typescript/no-unused-vars": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "packages/contract/src/**/*.ts",
+        "packages/engine/src/**/*.ts",
+        "design-systems/*/src/**/*.ts",
+        "apps/*/src/**/*.ts",
+        "plugin/src/**/*.ts"
+      ],
+      "env": {
+        "browser": true
+      },
+      "globals": {
+        "__html__": "readonly",
+        "figma": "readonly"
+      }
+    },
+    {
+      "files": [
+        "packages/harness/**/*.ts",
+        "packages/guards/**/*.ts",
+        "design-systems/*/generators/**/*.ts",
+        "**/tests/**/*.ts"
+      ],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": [
+        "plugin/src/entry.ts"
+      ],
+      "rules": {
+        "import/no-unassigned-import": "off"
+      }
+    },
+    {
+      "files": [
+        "packages/harness/src/bundle/**/*.ts",
+        "packages/harness/src/runtime/**/*.ts",
+        "packages/harness/src/rendering/**/*.ts"
+      ],
+      "rules": {
+        "eslint/no-new": "off",
+        "eslint/no-underscore-dangle": "off",
+        "typescript/no-this-alias": "off"
+      }
+    },
+    {
+      "files": [
+        "packages/harness/src/accessibility/apca.ts"
+      ],
+      "rules": {
+        "oxc/approx-constant": "off"
+      }
+    }
+  ]
+}

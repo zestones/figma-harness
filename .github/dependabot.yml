@@ -1,35 +1,39 @@
-# Grouped weekly updates for workflow actions and the plugin toolchain.
+# Grouped weekly updates for workflow actions and the workspace toolchain.
 version: 2
 updates:
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
+      interval: "weekly"
     groups:
       actions:
         patterns:
-          - '*'
+          - "*"
     open-pull-requests-limit: 5
     commit-message:
-      prefix: 'ci'
+      prefix: "ci"
 
-  - package-ecosystem: 'npm'
-    directory: '/plugin'
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
+      interval: "weekly"
     groups:
       # Primer and the fonts feed generated files and the design signature,
       # so their updates arrive on their own and need a design-system review.
       design-sources:
         patterns:
-          - '@primer/*'
-          - '@fontsource/*'
+          - "@primer/*"
+          - "@fontsource/*"
       toolchain:
         patterns:
-          - '*'
+          - "*"
         exclude-patterns:
-          - '@primer/*'
-          - '@fontsource/*'
+          - "@primer/*"
+          - "@fontsource/*"
+    ignore:
+      # @types/node follows the Node.js major the workspace targets (22).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
     commit-message:
-      prefix: 'build'
+      prefix: "build"

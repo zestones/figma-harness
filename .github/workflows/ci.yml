@@ -16,17 +16,14 @@ jobs:
   verify:
     name: "Figma workspace · guards + build + audits + parity"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: plugin
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: plugin/package-lock.json
-      - run: npm ci
-      - run: npm run verify
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify

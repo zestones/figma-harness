@@ -1,0 +1,50 @@
+{
+  "name": "figma-harness",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Code-governed Figma workspace: a plugin, a swappable design system, an example app, and the offline harness that verifies them",
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "tsx packages/harness/src/bundle/build.ts",
+    "build:check": "tsx packages/harness/src/bundle/build.ts --check",
+    "tokens:generate": "tsx design-systems/primer/generators/tokens/tokens.ts",
+    "tokens:check": "tsx design-systems/primer/generators/tokens/tokens.ts --check",
+    "icons:generate": "tsx design-systems/primer/generators/icons/icons.ts",
+    "icons:check": "tsx design-systems/primer/generators/icons/icons.ts --check",
+    "cvd:generate": "tsx packages/harness/src/accessibility/cvd-table.ts",
+    "audit": "tsx packages/harness/src/runtime/harness.ts",
+    "audit:contrast": "tsx packages/harness/src/accessibility/contrast.ts",
+    "audit:a11y": "tsx packages/harness/src/accessibility/a11y.ts",
+    "audit:theme": "tsx packages/harness/src/color/theme/theme.ts",
+    "design:signature": "tsx packages/harness/src/signatures/design-signature.ts",
+    "design:check": "tsx packages/harness/src/signatures/design-signature.ts --check",
+    "design:components": "tsx packages/harness/src/signatures/component-signature.ts",
+    "design:components:check": "tsx packages/harness/src/signatures/component-signature.ts --check",
+    "render:fonts:check": "tsx packages/harness/src/rendering/check-fonts.ts",
+    "render:png": "tsx packages/harness/src/rendering/png.ts",
+    "render:svg": "tsx packages/harness/src/rendering/render.ts",
+    "isolated": "node --max-old-space-size=128 --import tsx packages/harness/src/bounded/isolated-run.ts",
+    "diagnose:memory": "node --max-old-space-size=512 --expose-gc --import tsx packages/harness/src/bounded/diagnose-memory.ts",
+    "guard": "pnpm run guard:architecture && pnpm run guard:authoring && pnpm run guard:flows && pnpm run guard:hygiene",
+    "guard:architecture": "tsx packages/guards/src/check-boundaries.ts",
+    "guard:authoring": "tsx packages/guards/src/check-authoring-contract.ts",
+    "guard:flows": "tsx packages/guards/src/check-flow-contract.ts",
+    "guard:hygiene": "tsx packages/guards/src/check-tooling-hygiene.ts",
+    "guard:scope": "tsx packages/guards/src/check-change-scope.ts",
+    "lint": "oxlint --deny-warnings --report-unused-disable-directives packages design-systems apps plugin",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx --test --test-concurrency=1 packages/*/tests/*.test.ts design-systems/*/tests/*.test.ts apps/*/tests/*.test.ts plugin/tests/*.test.ts",
+    "smoke:figma:preflight": "pnpm run build:check && pnpm run render:fonts:check && pnpm run design:check && pnpm run design:components:check",
+    "verify": "pnpm run guard && pnpm run build:check && pnpm run tokens:check && pnpm run icons:check && pnpm run lint && pnpm run typecheck && pnpm run render:fonts:check && pnpm test && pnpm run audit && pnpm run audit:contrast && pnpm run audit:a11y && pnpm run audit:theme && pnpm run design:check && pnpm run design:components:check"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "catalog:",
+    "@types/node": "catalog:",
+    "oxlint": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

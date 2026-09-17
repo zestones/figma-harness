@@ -1,0 +1,4 @@
+/plugin/code.js linguist-generated=true
+/plugin/baselines/*.json linguist-generated=true
+/design-systems/*/src/**/*.generated.ts linguist-generated=true
+/pnpm-lock.yaml linguist-generated=true

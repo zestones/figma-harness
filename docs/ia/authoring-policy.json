@@ -2,73 +2,74 @@
   "version": 1,
   "defaultMode": "PAGE_AUTHORING",
   "baselinePaths": [
-    "plugin/tools/runtime/design-baseline.json",
-    "plugin/tools/runtime/component-baseline.json"
+    "plugin/baselines/design.json",
+    "plugin/baselines/components.json"
   ],
   "ignoredPaths": [
-    "plugin/node_modules/**",
-    "plugin/renders/**"
+    "renders/**"
   ],
   "modes": {
     "PAGE_AUTHORING": {
       "allowed": [
-        "docs/briefs/**",
-        "plugin/src/designs/pages/**",
-        "plugin/src/designs/flows/**",
-        "plugin/src/designs/catalog.ts",
-        "plugin/src/designs/app.ts",
-        "plugin/src/designs/screens.ts",
-        "plugin/src/fixtures/**",
-        "plugin/tools/tests/**",
+        "apps/*/docs/briefs/**",
+        "apps/*/src/app.ts",
+        "apps/*/src/fixtures/**",
+        "apps/*/src/flows/**",
+        "apps/*/src/pages/**",
+        "apps/*/src/screens.ts",
+        "apps/*/src/stress-cases.ts",
+        "apps/*/tests/**",
         "plugin/code.js"
       ]
     },
     "DESIGN_SYSTEM_CHANGE": {
       "allowed": [
-        "THIRD_PARTY_NOTICES.md",
-        "docs/adr/**",
-        "docs/briefs/**",
-        "docs/design-system.md",
-        "plugin/package.json",
-        "plugin/package-lock.json",
-        "plugin/src/kit/**",
-        "plugin/src/designs/sheets/**",
-        "plugin/src/fixtures/**",
-        "plugin/tools/tests/**",
-        "plugin/tools/accessibility/**",
-        "plugin/tools/color/**",
-        "plugin/tools/icons/**",
-        "plugin/tools/tokens/**",
-        "plugin/code.js"
+        "apps/*/docs/briefs/**",
+        "apps/*/src/fixtures/**",
+        "apps/*/tests/**",
+        "design-systems/**",
+        "docs/design-systems.md",
+        "plugin/code.js",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml"
       ]
     },
     "DESIGN_EXPLORATION": {
       "allowed": [
-        "docs/briefs/**",
-        "plugin/src/designs/experiments/**",
-        "plugin/src/designs/catalog.ts",
-        "plugin/src/fixtures/**",
-        "plugin/tools/tests/**",
+        "apps/*/docs/briefs/**",
+        "apps/*/src/fixtures/**",
+        "apps/*/src/lab/**",
+        "apps/*/tests/**",
         "plugin/code.js"
       ]
     },
     "STRUCTURAL_MAINTENANCE": {
       "allowed": [
         ".github/**",
+        ".gitattributes",
         ".gitignore",
+        ".oxlintrc.json",
         "AGENTS.md",
         "CLAUDE.md",
         "CONTRIBUTING.md",
         "LICENSE",
         "README.md",
+        "apps/**",
+        "design-systems/**",
         "docs/**",
-        "plugin/**"
+        "figma-harness.config.json",
+        "package.json",
+        "packages/**",
+        "plugin/**",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "tsconfig.json"
       ]
     },
     "BASELINE_ACCEPTANCE": {
       "allowed": [
-        "plugin/tools/runtime/design-baseline.json",
-        "plugin/tools/runtime/component-baseline.json"
+        "plugin/baselines/design.json",
+        "plugin/baselines/components.json"
       ],
       "requiresExplicitHumanApproval": true
     }

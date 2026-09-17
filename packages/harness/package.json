@@ -1,0 +1,18 @@
+{
+  "name": "@figma-harness/harness",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Offline Figma: runs the plugin bundle against a mock API, audits it, renders it and signs it",
+  "type": "commonjs",
+  "figmaHarness": {
+    "role": "tooling"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@figma-harness/contract": "workspace:*",
+    "esbuild": "catalog:",
+    "sharp": "catalog:"
+  }
+}

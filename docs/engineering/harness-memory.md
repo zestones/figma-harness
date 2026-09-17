@@ -13,11 +13,11 @@ The offline harness builds the whole Figma document inside a Node `vm` against a
 - **Stream, never materialize.** The design signature writes the canonical JSON of the protected pages straight into SHA-256. It never holds the snapshot tree or its string. Tests compare streamed and materialized serialization byte for byte.
 - **One document at a time.** A test that compares two builds captures the first build's digest and counts, removes its frames, and releases its harness before building the second.
 - **Assert on scalars.** Compare counts and digests, never arrays of nodes. When an assertion on a node array fails, the runner formats the whole graph: 16 tiny frames already produce a 156,031-character message.
-- **No second document.** A tool that only needs installed colour variables installs tokens in a fresh harness without building any page (see `tools/accessibility/cvd-table.ts`). Tree audits reuse one ancestor stack instead of allocating one per node.
+- **No second document.** A tool that only needs installed colour variables installs tokens in a fresh harness without building any page (see `packages/harness/src/accessibility/cvd-table.ts`). Tree audits reuse one ancestor stack instead of allocating one per node.
 
 ## Bounded execution
 
-`npm run isolated -- <task>` runs one task in a transient systemd user service under `app.slice`. It verifies the effective limits before starting and refuses to fall back to unbounded execution.
+`pnpm isolated <task>` runs one task in a transient systemd user service under `app.slice`. It verifies the effective limits before starting and refuses to fall back to unbounded execution.
 
 | Limit | Value |
 | --- | --- |
@@ -28,17 +28,17 @@ The offline harness builds the whole Figma document inside a Node `vm` against a
 | Runtime | 180 s |
 | Core dumps | disabled |
 
-The runner also sets one V8 background worker, two libuv workers, `GOMAXPROCS=1`, and `RAYON_NUM_THREADS=1`. Without these caps, esbuild could not create an operating-system thread inside the 64-task limit. The runner prints the memory and task peaks and releases its own service. There is no aggregate `verify` task, and test runs need explicit file selectors.
+The runner also sets one V8 background worker, two libuv workers, `GOMAXPROCS=1`, and `RAYON_NUM_THREADS=1`. Without these caps, esbuild could not create an operating-system thread inside the 64-task limit. pnpm runs inside the same limits: the runner starts it for every task except tests. The runner prints the memory and task peaks and releases its own service. There is no aggregate `verify` task, and test runs need explicit file selectors.
 
 ## Diagnostics
 
 `diagnose:memory` samples allocations and collects garbage explicitly on a bounded fixture. It never writes a heap snapshot.
 
 ```bash
-npm run isolated -- diagnose:memory nodes renders/memory/nodes.json
-npm run isolated -- diagnose:memory assertion renders/memory/assertion.json
-npm run isolated -- diagnose:memory document renders/memory/document.json
-npm run isolated -- diagnose:memory lab renders/memory/lab.json
+pnpm isolated diagnose:memory nodes renders/memory/nodes.json
+pnpm isolated diagnose:memory assertion renders/memory/assertion.json
+pnpm isolated diagnose:memory document renders/memory/document.json
+pnpm isolated diagnose:memory lab renders/memory/lab.json
 ```
 
 `nodes` measures live and removed mock nodes, `assertion` measures failure formatting, `document` performs three complete builds and records the heap after each, and `lab` records the Design lab frame signatures. Output stays under the ignored `renders/` directory.
