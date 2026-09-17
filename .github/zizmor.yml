@@ -1,0 +1,9 @@
+# zizmor configuration — https://docs.zizmor.sh/configuration/
+#
+# Actions are referenced by version tag and kept current by Dependabot, so
+# `unpinned-uses` only fires on truly unpinned refs (for example @main).
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        '*': ref-pin

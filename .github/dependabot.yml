@@ -1,0 +1,35 @@
+# Grouped weekly updates for workflow actions and the plugin toolchain.
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    groups:
+      actions:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'ci'
+
+  - package-ecosystem: 'npm'
+    directory: '/plugin'
+    schedule:
+      interval: 'weekly'
+    groups:
+      # Primer and the fonts feed generated files and the design signature,
+      # so their updates arrive on their own and need a design-system review.
+      design-sources:
+        patterns:
+          - '@primer/*'
+          - '@fontsource/*'
+      toolchain:
+        patterns:
+          - '*'
+        exclude-patterns:
+          - '@primer/*'
+          - '@fontsource/*'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'build'
