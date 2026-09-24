@@ -8,12 +8,12 @@ packages:
 # One version of each shared tool, referenced as "catalog:" by the packages.
 catalog:
   '@figma/plugin-typings': 1.138.0
-  '@types/node': 22.20.2
+  '@types/node': 22.20.4
   esbuild: 0.28.2
-  oxc-parser: 0.150.0
-  oxlint: 1.83.0
+  oxc-parser: 0.151.0
+  oxlint: 1.85.0
   sharp: 0.35.4
-  tsx: 4.23.13
+  tsx: 4.23.15
   typescript: 7.0.2
 
 # esbuild's install script only checks its platform binary.
