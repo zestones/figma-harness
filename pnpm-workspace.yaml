@@ -7,11 +7,11 @@ packages:
 
 # One version of each shared tool, referenced as "catalog:" by the packages.
 catalog:
-  '@figma/plugin-typings': 1.139.0
-  '@types/node': 22.20.4
+  '@figma/plugin-typings': 1.141.0
+  '@types/node': 22.20.5
   esbuild: 0.28.2
-  oxc-parser: 0.151.0
-  oxlint: 1.86.0
+  oxc-parser: 0.153.0
+  oxlint: 1.87.0
   sharp: 0.35.5
   tsx: 4.23.15
   typescript: 7.0.2
